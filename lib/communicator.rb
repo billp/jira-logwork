@@ -14,6 +14,7 @@ class Communicator
 
   private
     attr_accessor :conn
+    attr_accessor :relogin_performed
   public
     # Opens a connection.
     def open
@@ -28,12 +29,38 @@ class Communicator
         headers: headers
       )
     end
+
+    def valid_json?(json)
+      JSON.parse(json)
+        return true
+      rescue JSON::ParserError => e
+        return false
+    end
+
+    # Handles response by checking http status codes.
+    # 
+    # @param res The request object from Faraday lib.
+    def handle_response(res)
+      if res.status == 401 && !relogin_performed && !res.env.url.to_s.include?("/rest/auth/")
+        login()
+        relogin_performed = true
+      end
+      if block_given?
+        json_body = valid_json?(res.body) ? parseJSON(res.body) : '{}'
+        yield(json_body)
+      end
+    end
     
     # Makes a GET request.
     # 
     # @param path [String] The path of the request.
-    def get(path)
-      conn.get(path) { |req| add_cookie_if_needed(req) }
+    def get(path, relogin_if_needed = true)
+      res = conn.get(path) { |req| add_cookie_if_needed(req) }
+      handle_response(res) do |body|
+        if block_given?
+          yield(body, res)
+        end
+      end
     end
     
     # Makes a POST request.
@@ -41,14 +68,25 @@ class Communicator
     # @param path [String] The path of the request.
     # @params params [Hash] The params of post request.
     def post(path, params = {})
-      conn.post(path) do |req|
+      res = conn.post(path) do |req|
         add_cookie_if_needed(req)
         req.body = params.to_json
+      end
+      
+      handle_response(res) do |body|
+        if block_given?
+          yield(body, res)
+        end
       end
     end
 
     def delete(path)
-      conn.delete(path) { |req| add_cookie_if_needed(req) }
+      res = conn.delete(path) { |req| add_cookie_if_needed(req) }
+      handle_response(res) do |body|
+        if block_given?
+          yield(body, res)
+        end
+      end
     end
     
     # Parses the given body as JSON.
@@ -67,6 +105,11 @@ class Communicator
 
     # Logs in a user or prompts with login credentials if it's not logged in.
     def login()
+      if is_logged_in() 
+        Utilities.log("You are already logged in.")
+        return
+      end
+
       keychain_account = Utilities.retrieve_credentials()
       account = { username: nil, password: nil, store_credentials: false }
     
@@ -83,50 +126,56 @@ class Communicator
         Utilities.log("Trying to login...")
       end
     
-      res = post("/rest/auth/#{JIRA_AUTH_VERSION}/session", {
+      params = {
         'username' => account[:username],
         'password' => account[:password]
-      })
-    
-      if res.status == 200
-        if account[:store_credentials]
-          #store credentials
-          Utilities.store_credentials(account[:username], account[:password])
+      }
+
+      post("/rest/auth/#{JIRA_AUTH_VERSION}/session", params) do |body, res|
+        if res.status == 200
+          if account[:store_credentials]
+            #store credentials
+            Utilities.store_credentials(account[:username], account[:password])
+          end
+      
+          cookie = body[:session][:name] + "=" + body[:session][:value]
+          conn.headers["Cookie"] = cookie
+          Utilities.store_cookie(cookie)
+          info = get_myself()
+          Utilities.log("Success (#{info[:full_name]}).", { type: :success })
+          true
+        else
+          Utilities.log("Login failed! Please check your credentials.", { type: :error })
+          false
         end
-    
-        json = JSON.parse(res.body)
-        cookie = json["session"]["name"] + "=" + json["session"]["value"]
-        conn.headers["Cookie"] = cookie
-        Utilities.store_cookie(cookie)
-        info = get_myself()
-        Utilities.log("Success (#{info[:full_name]}).", { type: :success })
-        true
-      else
-        Utilities.log("Login failed! Please check your credentials.", { type: :error })
-        false
       end
     end
 
     # Log out the currently logged in user.
     def logout()
       Utilities.log('Logging out...')
-      res = delete("/rest/auth/#{JIRA_AUTH_VERSION}/session")
-      if res.status == 204
-        Utilities.log('Success.', { type: :success })
-      elsif res.status == 401
-        Utilities.log("You are not logged in.", { type: :error })
-        Utilities.remove_credentials()
-        Utilities.remove_cookie()
+      delete("/rest/auth/#{JIRA_AUTH_VERSION}/session") do |body, res|
+        if res.status == 204
+          Utilities.log('Success.', { type: :success })
+        elsif res.status == 401
+          Utilities.log("You are not logged in.", { type: :error })
+          Utilities.remove_credentials()
+          Utilities.remove_cookie()
+        end
       end
+    end
+
+    def is_logged_in
+      Utilities.cookie_exists()
     end
 
     # Returns information about the logged in user.
     # 
     # @return [Hash] User info.
     def get_myself()
-      res = get("/rest/api/#{JIRA_REST_API_VERSION}/myself")
-      json = parseJSON(res.body)
-      { full_name: json[:displayName]}
+      get("/rest/api/#{JIRA_REST_API_VERSION}/myself") do |body, res| 
+        { full_name: body[:displayName]}
+      end
     end
 
     # Adds a new worklog entry for the logged in user

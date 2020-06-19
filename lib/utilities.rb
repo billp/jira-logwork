@@ -67,9 +67,13 @@ class Utilities
     #
     # @return [String] Cookie value or nil
     def self.retrieve_cookie()
-      if File.file?(cookie_file_path)
+      if cookie_exists()
         File.read(cookie_file_path)
       end
+    end
+
+    def self.cookie_exists()
+      File.file?(cookie_file_path)
     end
 
     private
