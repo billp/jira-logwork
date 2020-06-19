@@ -8,7 +8,7 @@ require 'communicator'
 # Parse command-line arguments
 begin
   opts = Slop.parse do |o|
-    o.bool '--login', 'Login with your JIRA Omnia credentials.'
+    o.bool '--login', 'Login with your JIRA credentials.'
     o.bool '--logout', 'Logout current user.'
   end
 rescue Slop::Error => ex
@@ -27,6 +27,4 @@ elsif opts[:logout]
   return
 end
 
-unless communicator.login()
-  exit 1
-end
+print opts

@@ -1,11 +1,10 @@
 require 'faraday'
-require 'nokogiri'
 require 'json'
-require 'date'
 require 'keychain'
 require 'byebug'
 require 'tty-prompt'
 require 'utilities'
+require 'configuration_manager'
 
 class Communicator
   JIRA_BASE_URL = 'https://jira.afse.eu'
@@ -110,19 +109,19 @@ class Communicator
         return
       end
 
-      keychain_account = Utilities.retrieve_credentials()
-      account = { username: nil, password: nil, store_credentials: false }
-    
-      if keychain_account.nil?
+      begin
+        account = ConfigurationManager.instance.login_credentials
+      rescue Exception => e
+        account = { username: nil, password: nil, should_store_credentials: true } 
+      end
+
+      if account[:username].nil?
         Utilities.log("Please enter your credentials:")
         prompt = TTY::Prompt.new
         account[:username] = prompt.ask("Username:")
         account[:password] = prompt.mask("Password:")
-        account[:store_credentials] = true
         Utilities.log("Trying to login...")
       else 
-        account[:username] = keychain_account.account
-        account[:password] = keychain_account.password
         Utilities.log("Trying to login...")
       end
     
@@ -133,9 +132,9 @@ class Communicator
 
       post("/rest/auth/#{JIRA_AUTH_VERSION}/session", params) do |body, res|
         if res.status == 200
-          if account[:store_credentials]
+          if account[:should_store_credentials]
             #store credentials
-            Utilities.store_credentials(account[:username], account[:password])
+            ConfigurationManager.instance.update_login_credentials(account[:username], account[:password])
           end
       
           cookie = body[:session][:name] + "=" + body[:session][:value]
@@ -153,20 +152,22 @@ class Communicator
 
     # Log out the currently logged in user.
     def logout()
+      begin 
+        ConfigurationManager.instance.login_credentials
+      rescue StandardError => e
+        Utilities.log("You are not logged in.")
+        return
+      end
+
       Utilities.log('Logging out...')
       delete("/rest/auth/#{JIRA_AUTH_VERSION}/session") do |body, res|
-        if res.status == 204
-          Utilities.log('Success.', { type: :success })
-        elsif res.status == 401
-          Utilities.log("You are not logged in.", { type: :error })
-          Utilities.remove_credentials()
-          Utilities.remove_cookie()
-        end
+        Utilities.remove_cookie()
+        ConfigurationManager.instance.update_login_credentials(nil, nil)
       end
     end
 
     def is_logged_in
-      Utilities.cookie_exists()
+      Utilities.cookie_exists?
     end
 
     # Returns information about the logged in user.
