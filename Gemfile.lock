@@ -12,6 +12,7 @@ GEM
     pastel (0.7.4)
       equatable (~> 0.6)
       tty-color (~> 0.5)
+    rake (13.0.1)
     slop (4.7.0)
     tty-color (0.5.1)
     tty-cursor (0.7.1)
@@ -34,6 +35,7 @@ DEPENDENCIES
   faraday
   faraday_middleware
   openssl
+  rake
   slop
   tty-prompt
   yaml

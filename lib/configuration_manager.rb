@@ -74,6 +74,8 @@ class ConfigurationManager
         #
         # @param settings [Hash] The settings hash that will be saved in yml format.
         def save_configuration
+            create_config_dir_if_needed
+
             if configuration_writable?
                 File.write(configuration_path, configuration_data.deep_stringify_keys!.to_yaml)
                 configuration_data = read_configuration
@@ -96,6 +98,12 @@ class ConfigurationManager
 
         def configuration_exists?
             File.file?(configuration_path)
+        end
+
+        def create_config_dir_if_needed
+            if !configuration_exists?
+                Dir.mkdir(File.dirname(configuration_path))
+            end
         end
 
         def encrypt(password)
