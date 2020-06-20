@@ -1,7 +1,5 @@
 require 'faraday'
 require 'json'
-require 'keychain'
-require 'byebug'
 require 'tty-prompt'
 require 'utilities'
 require 'configuration_manager'
