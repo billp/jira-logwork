@@ -1,6 +1,5 @@
 require 'pathname'
 require 'yaml'
-require 'bcrypt'
 require 'external/hash'
 require 'openssl'
 
