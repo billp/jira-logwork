@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'constants'
+require 'time'
 
 class Utilities
     LOG_SYMBOLS = {
@@ -56,6 +57,36 @@ class Utilities
     # @return [Boolean] True if cookie file exists, false otherwise.
     def self.cookie_exists?
       File.file?(cookie_file_path)
+    end
+
+    # Validates a URL string
+    #
+    # @return [Boolean] True if URL is valid, false otherwise.
+    require 'byebug'
+    def self.valid_url?(url)
+      uri = URI.parse(url)
+      !uri.nil? && !uri.host.nil?
+    rescue URI::InvalidURIError
+      false
+    end
+
+    # Validates a time string, e.g. 10:00
+    #
+    # @return [Boolean] True if time is valid, false otherwise.
+    def self.valid_time?(time)
+      begin
+        Time.parse(time)
+        return true
+      rescue
+        return false
+      end
+    end
+
+    # Return the total hour duration between two time strings.
+    #
+    # @return [Int] Duration in hours.
+    def self.time_diff_hours(start_time, end_time)
+      (Time.parse(end_time) - Time.parse(start_time)).to_i / 3600
     end
 
     private

@@ -1,5 +1,5 @@
 
-require './hashable_init'
+require 'models/hashable_init'
 
 module AdjustmentMode
     AUTO = 1

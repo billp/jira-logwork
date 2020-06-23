@@ -5,47 +5,13 @@ require 'utilities'
 require 'configuration_manager'
 
 class Communicator
-  JIRA_BASE_URL = 'https://jira.afse.eu'
+  include Singleton
+
   JIRA_REST_API_VERSION = '2'
   JIRA_AUTH_VERSION = '1'
-
-  private
-    attr_accessor :conn
-    attr_accessor :relogin_performed
   public
-    # Opens a connection.
-    def open
-      headers = { 'Content-Type': 'application/json' }
-      stored_cookie = Utilities.retrieve_cookie()
-      if !stored_cookie.nil?
-        headers['Cookie'] = stored_cookie
-      end
-
-      self.conn = Faraday.new(
-        url: JIRA_BASE_URL,
-        headers: headers
-      )
-    end
-
-    def valid_json?(json)
-      JSON.parse(json)
-        return true
-      rescue JSON::ParserError => e
-        return false
-    end
-
-    # Handles response by checking http status codes.
-    # 
-    # @param res The request object from Faraday lib.
-    def handle_response(res)
-      if res.status == 401 && !relogin_performed && !res.env.url.to_s.include?("/rest/auth/")
-        login()
-        relogin_performed = true
-      end
-      if block_given?
-        json_body = valid_json?(res.body) ? parseJSON(res.body) : '{}'
-        yield(json_body)
-      end
+    def initialize
+      open
     end
     
     # Makes a GET request.
@@ -101,38 +67,24 @@ class Communicator
     end
 
     # Logs in a user or prompts with login credentials if it's not logged in.
-    def login()
-      if is_logged_in() 
-        Utilities.log("You are already logged in.")
+    #
+    # @param [AccountCredentials] an accound credentials instance.
+    def login(account_credentials)
+      if logged_in?
+        raise UserAlreadyLoggedInException.new "You are already logged in."
         return
       end
 
-      begin
-        account = ConfigurationManager.instance.login_credentials
-      rescue Exception => e
-        account = { username: nil, password: nil, should_store_credentials: true } 
-      end
-
-      if account[:username].nil?
-        Utilities.log("Please enter your credentials:")
-        prompt = TTY::Prompt.new
-        account[:username] = prompt.ask("Username:")
-        account[:password] = prompt.mask("Password:")
-        Utilities.log("Trying to login...")
-      else 
-        Utilities.log("Trying to login...")
-      end
-    
       params = {
-        'username' => account[:username],
-        'password' => account[:password]
+        'username' => account_credentials.username,
+        'password' => account_credentials.password
       }
 
       post("/rest/auth/#{JIRA_AUTH_VERSION}/session", params) do |body, res|
         if res.status == 200
-          if account[:should_store_credentials]
+          unless account_credentials.is_stored
             #store credentials
-            ConfigurationManager.instance.update_login_credentials(account[:username], account[:password])
+            ConfigurationManager.instance.update_login_credentials(account_credentials.username, account_credentials.password)
           end
       
           cookie = body[:session][:name] + "=" + body[:session][:value]
@@ -141,31 +93,35 @@ class Communicator
           info = get_myself()
           Utilities.log("Success (#{info[:full_name]}).", { type: :success })
           true
+        elsif res.status == 401
+          raise InvalidCredentialsException.new "Login failed! Please check your credentials."
         else
-          Utilities.log("Login failed! Please check your credentials.", { type: :error })
-          false
+          raise StandardError.new "Unknown error"
         end
       end
     end
 
     # Log out the currently logged in user.
-    def logout()
-      begin 
-        ConfigurationManager.instance.login_credentials
-      rescue StandardError => e
-        Utilities.log("You are not logged in.")
-        return
+    def logout
+      unless logged_in?
+        raise UserNotLoggedInException.new "You are not logged in."
       end
 
-      Utilities.log('Logging out...')
       delete("/rest/auth/#{JIRA_AUTH_VERSION}/session") do |body, res|
         Utilities.remove_cookie()
         ConfigurationManager.instance.update_login_credentials(nil, nil)
       end
     end
 
-    def is_logged_in
-      Utilities.cookie_exists?
+    # Returns if the iser is logged in.
+    #
+    # @return [Boolean] True if user is logged in, false otherwise.
+    def logged_in?
+      begin
+        return Utilities.cookie_exists? && !ConfigurationManager.instance.login_credentials.nil?
+      rescue
+        return false
+      end
     end
 
     # Returns information about the logged in user.
@@ -195,6 +151,44 @@ class Communicator
         return { error: "Something went wrong! (#{res.status})" }
       else
         return { success: true }
+      end
+    end
+  private
+    attr_accessor :conn
+    attr_accessor :relogin_performed
+
+    # Opens a connection.
+    def open
+      headers = { 'Content-Type': 'application/json' }
+      stored_cookie = Utilities.retrieve_cookie()
+      if !stored_cookie.nil?
+        headers['Cookie'] = stored_cookie
+      end
+
+      self.conn = Faraday.new(
+        url: ConfigurationManager.instance.jira_server_url,
+        headers: headers
+      )
+    end
+
+    def valid_json?(json)
+      JSON.parse(json)
+        return true
+      rescue JSON::ParserError => e
+        return false
+    end
+
+    # Handles response by checking http status codes.
+    # 
+    # @param res The request object from Faraday lib.
+    def handle_response(res)
+      if res.status == 401 && !relogin_performed && !res.env.url.to_s.include?("/rest/auth/")
+        login()
+        relogin_performed = true
+      end
+      if block_given?
+        json_body = valid_json?(res.body) ? parseJSON(res.body) : '{}'
+        yield(json_body)
       end
     end
 end
