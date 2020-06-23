@@ -73,7 +73,11 @@ class SetupWizard
 
       unless Communicator.instance.logged_in?
         Utilities.log("Trying to login...")
-        Communicator.instance.login(account)  
+        begin
+          Communicator.instance.login(account)  
+        rescue InvalidCredentialsException
+          Utilities.log("Invalid username or password.", { type: :error })
+        end
       end
     end
 end
