@@ -2,6 +2,9 @@ require 'pathname'
 require 'yaml'
 require 'external/hash'
 require 'openssl'
+require 'uri'
+require 'exceptions'
+require 'models/account_credentials'
 
 class ConfigurationManager
     include Singleton
@@ -17,23 +20,29 @@ class ConfigurationManager
         end
     end
 
-    # Read credentials form configuration file
+    # Read credentials from configuration file
     #
-    # @return [Hash] A hash with :username, :password keys
+    # @return [AccountCredentials] An AccountCredentials instance with username, password and is_stored properties.
     def login_credentials
         if configuration_data[:credentials].nil? || 
             configuration_data[:credentials][:username].nil? || 
             configuration_data[:credentials][:password].nil?
-            throw StandardError.new "Cannot read username/password from configuration file at '#{configuration_path}'"
+            raise ConfigurationValueNotFound.new "Cannot read username/password from configuration file at '#{configuration_path}'."
         end
 
         decrypted_password = decrypt(configuration_data[:credentials][:password][:cipher], configuration_data[:credentials][:password][:iv])
 
-        return { username: configuration_data[:credentials][:username], 
-                 password: decrypted_password }
+        account_credentials = AccountCredentials.new(username: configuration_data[:credentials][:username], 
+                                                     password: decrypted_password,
+                                                     is_stored: true)
+
+        return account_credentials
     end
 
     # Update login credentials in configuration file
+    #
+    # @param username [String] Jira username
+    # @param password [String] Jira password
     def update_login_credentials(username, password)
         unless username.nil? && password.nil? 
             encrypted_password = encrypt(password)
@@ -46,6 +55,121 @@ class ConfigurationManager
         end
 
         save_configuration
+    end
+
+    # Read JIRA server URL configuration file
+    #
+    # @return [String] The JIRA Server URL
+    def jira_server_url
+        if configuration_data[:jira_server_url].nil?
+            raise ConfigurationValueNotFound.new "Cannot read JIRA server URL from configuration file at '#{configuration_path}'."
+        end
+
+        unless Utilities.valid_url?(configuration_data[:jira_server_url]) 
+            raise InvalidURLException.new "Invalid JIRA Server URL in '#{configuration_path}'"
+        end
+
+        return configuration_data[:jira_server_url]
+    end
+
+    # Update login credentials in configuration file
+    def update_jira_server_url(url)
+        unless Utilities.valid_url?(url) 
+            raise InvalidURLException.new "Invalid JIRA Server URL."
+        end
+
+        configuration_data[:jira_server_url] = url
+        save_configuration
+    end
+
+    # Read worktime start.
+    #
+    # @return [String] The start work time value, e.g. '10:00'
+    def worktime_start
+        if configuration_data[:worktime].nil? || configuration_data[:worktime][:start].nil?
+            raise ConfigurationValueNotFound.new "Cannot read work time start from configuration file at '#{configuration_path}'."
+        end
+
+        work_start = configuration_data[:worktime][:start]
+        
+        unless Utilities.valid_time?(work_start)
+            raise InvalidTimeException.new "Invalid start time format in '#{configuration_path}'."
+        end
+
+        return configuration_data[:worktime][:start]
+    end
+
+    # Update work time start in configuration file.
+    #
+    # @param [String] The start work time value, e.g. '10:00'
+    def update_worktime_start(worktime_start)
+        unless Utilities.valid_time?(worktime_start)
+            raise InvalidTimeException.new "Invalid start time format."
+        end
+
+        worktime = configuration_data[:worktime] || Hash.new
+        worktime[:start] = worktime_start
+        configuration_data[:worktime] = worktime
+        save_configuration
+    end
+
+    # Read worktime end.
+    #
+    # @return [String] The end work time value, e.g. '18:00'
+    def worktime_end
+        if configuration_data[:worktime].nil? || configuration_data[:worktime][:end].nil?
+            raise ConfigurationValueNotFound.new "Cannot read Work time from configuration file at '#{configuration_path}'."
+        end
+
+        work_end = configuration_data[:worktime][:end]
+        
+        unless Utilities.valid_time?(work_end)
+            raise InvalidTimeException.new "Invalid end time formats in '#{configuration_path}'."
+        end
+
+        return configuration_data[:worktime][:end]
+    end
+
+    # Update work time end in configuration file.
+    #
+    # @param [String] The start work time value, e.g. '18:00'
+    def update_worktime_end(worktime_end)
+        unless Utilities.valid_time?(worktime_end)
+            raise InvalidTimeException.new "Invalid end time format."
+        end
+
+        worktime = configuration_data[:worktime] || Hash.new
+        worktime[:end] = worktime_end
+        configuration_data[:worktime] = worktime
+        save_configuration
+    end
+
+    # Worktime duration in hours.
+    #
+    # @return [Int] The duration in hours between worktime end and worktime start
+    def worktime_duration
+        duration = Utilities.time_diff_hours(worktime_start, worktime_end)
+
+        if duration < 1 || duration > 24
+            raise InvalidWorkHoursDurationException.new "Unable to calculate your work hours. Configuration values worktime_start and/or worktime_end are invalid."
+        end
+
+        return duration
+    end
+
+    def print_value(type)
+        begin
+            case type
+            when :url
+                jira_server_url
+            when :worktime_start
+                worktime_start
+            when :worktime_end
+                worktime_end
+            end
+        rescue ConfigurationValueNotFound
+            "[not set]"
+        end
     end
 
     private
@@ -63,10 +187,10 @@ class ConfigurationManager
         # @return [Hash] The hash representation of yml configuration file.
         def read_configuration
             if configuration_exists?
-                data = YAML.load(File.read(configuration_path)).deep_symbolize_keys!
+                data = YAML.load(File.read(configuration_path)).deep_symbolize_keys
                 return data || {}
             else
-                throw StandardError.new "Configuration cannot be read at '#{configuration_path}'"
+                raise ConfigurationFileNotFoundException.new "Configuration cannot be read at '#{configuration_path}'"
             end
         end
 
@@ -77,10 +201,10 @@ class ConfigurationManager
             create_config_dir_if_needed
 
             if configuration_writable?
-                File.write(configuration_path, configuration_data.deep_stringify_keys!.to_yaml)
+                File.write(configuration_path, configuration_data.deep_stringify_keys.to_yaml)
                 configuration_data = read_configuration
             else
-                throw StandardError.new "Configuration cannot be saved at '#{configuration_path}'"
+                raise ConfigurationFileNotFoundException.new "Configuration cannot be saved at '#{configuration_path}'"
             end
         end
 
