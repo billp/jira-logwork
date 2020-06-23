@@ -82,76 +82,72 @@ class ConfigurationManager
         save_configuration
     end
 
-    # Read worktime start.
+    # Read shift start.
     #
-    # @return [String] The start work time value, e.g. '10:00'
-    def worktime_start
-        if configuration_data[:worktime].nil? || configuration_data[:worktime][:start].nil?
-            raise ConfigurationValueNotFound.new "Cannot read work time start from configuration file at '#{configuration_path}'."
+    # @return [String] The shift start time value, e.g. '10:00'
+    def shift_start
+        if configuration_data[:shift].nil? || configuration_data[:shift][:start].nil?
+            raise ConfigurationValueNotFound.new "Cannot read shift start time from configuration file at '#{configuration_path}'."
         end
 
-        work_start = configuration_data[:worktime][:start]
+        shift_start = configuration_data[:shift][:start]
         
-        unless Utilities.valid_time?(work_start)
-            raise InvalidTimeException.new "Invalid start time format in '#{configuration_path}'."
+        unless Utilities.valid_time?(shift_start)
+            raise InvalidTimeException.new "Invalid shift start time format in '#{configuration_path}'."
         end
 
-        return configuration_data[:worktime][:start]
+        return configuration_data[:shift][:start]
     end
 
-    # Update work time start in configuration file.
-    #
-    # @param [String] The start work time value, e.g. '10:00'
-    def update_worktime_start(worktime_start)
-        unless Utilities.valid_time?(worktime_start)
+    # Update shift start in configuration file.
+    def update_shift_start(shift_start)
+        unless Utilities.valid_time?(shift_start)
             raise InvalidTimeException.new "Invalid start time format."
         end
 
-        worktime = configuration_data[:worktime] || Hash.new
-        worktime[:start] = worktime_start
-        configuration_data[:worktime] = worktime
+        shift = configuration_data[:shift] || Hash.new
+        shift[:start] = shift_start
+        configuration_data[:shift] = shift
         save_configuration
     end
 
-    # Read worktime end.
+    # Read shift end.
     #
-    # @return [String] The end work time value, e.g. '18:00'
-    def worktime_end
-        if configuration_data[:worktime].nil? || configuration_data[:worktime][:end].nil?
-            raise ConfigurationValueNotFound.new "Cannot read Work time from configuration file at '#{configuration_path}'."
+    # @return [String] The shift end time value, e.g. '18:00'
+    def shift_end
+        if configuration_data[:shift].nil? || configuration_data[:shift][:end].nil?
+            raise ConfigurationValueNotFound.new "Cannot read shift end time from configuration file at '#{configuration_path}'."
         end
 
-        work_end = configuration_data[:worktime][:end]
+        shift_end = configuration_data[:shift][:end]
         
-        unless Utilities.valid_time?(work_end)
+        unless Utilities.valid_time?(shift_end)
             raise InvalidTimeException.new "Invalid end time formats in '#{configuration_path}'."
         end
 
-        return configuration_data[:worktime][:end]
+        return configuration_data[:shift][:end]
     end
 
-    # Update work time end in configuration file.
-    #
-    # @param [String] The start work time value, e.g. '18:00'
-    def update_worktime_end(worktime_end)
-        unless Utilities.valid_time?(worktime_end)
+    # Update shift end time in configuration file.
+    def update_shift_end(shift_end)
+        unless Utilities.valid_time?(shift_end)
             raise InvalidTimeException.new "Invalid end time format."
         end
 
-        worktime = configuration_data[:worktime] || Hash.new
-        worktime[:end] = worktime_end
-        configuration_data[:worktime] = worktime
+        shift = configuration_data[:shift] || Hash.new
+        shift[:end] = shift_end
+        configuration_data[:shift] = shift
         save_configuration
     end
 
-    # Worktime duration in hours.
+    # Shift duration in hours.
     #
-    # @return [Int] The duration in hours between worktime end and worktime start
-    def worktime_duration
-        duration = Utilities.time_diff_hours(worktime_start, worktime_end)
+    # @return [Int] The duration in hours between shift end and shift start
+    def shift_duration
+        duration = Utilities.time_diff_hours(shift_start, shift_end)
 
         if duration < 1 || duration > 24
-            raise InvalidWorkHoursDurationException.new "Unable to calculate your work hours. Configuration values worktime_start and/or worktime_end are invalid."
+            raise InvalidShiftHoursDurationException.new "Unable to calculate your shift hours. Configuration values shift_start and/or shift_end are invalid."
         end
 
         return duration
@@ -162,10 +158,10 @@ class ConfigurationManager
             case type
             when :url
                 jira_server_url
-            when :worktime_start
-                worktime_start
-            when :worktime_end
-                worktime_end
+            when :shift_start
+                shift_start
+            when :shift_end
+                shift_end
             end
         rescue ConfigurationValueNotFound
             "[not set]"

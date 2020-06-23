@@ -10,4 +10,4 @@ class InvalidURLException < StandardError; end
 
 # Worklog
 class InvalidTimeException < StandardError; end
-class InvalidWorkHoursDurationException < StandardError; end
+class InvalidShiftHoursDurationException < StandardError; end

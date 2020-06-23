@@ -16,8 +16,8 @@ class SetupWizard
     def run
       Utilities.log("Welcome to jira-logwork configuration wizard.\n")
       set_jira_url
-      set_start_worktime
-      set_end_worktime
+      set_shift_start
+      set_shift_end
       set_login_credentials
       Utilities.log("Configuration saved successfully.", { type: :success })
     end
@@ -34,11 +34,11 @@ class SetupWizard
       end
     end
 
-    # Promts to set the worktime start.
-    def set_start_worktime
+    # Promts to set the shift start.
+    def set_shift_start
       loop do
         begin
-          ConfigurationManager.instance.update_worktime_start prompt.ask("What time is your shift started? (24h format, e.g. 10:00):")
+          ConfigurationManager.instance.update_shift_start prompt.ask("What time is your shift started? (24h format, e.g. 10:00):")
           break
         rescue InvalidTimeException
           Utilities.log("Invalid time format", { type: :error })
@@ -46,11 +46,11 @@ class SetupWizard
       end
     end
 
-    # Promts to set the worktime end.
-    def set_end_worktime
+    # Promts to set the shift end.
+    def set_shift_end
       loop do
         begin
-          ConfigurationManager.instance.update_worktime_end prompt.ask("What time is your shift finished? (24h format, e.g. 18:00):")
+          ConfigurationManager.instance.update_shift_end prompt.ask("What time is your shift finished? (24h format, e.g. 18:00):")
           break
         rescue InvalidTimeException
           Utilities.log("Invalid time format", { type: :error })
