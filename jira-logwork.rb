@@ -60,8 +60,8 @@ class JiraLogwork
     opts = Slop::Options.new
     opts.banner = "usage: #{$0} config [option] [value]"
     opts.string "url", "Set the JIRA Server URL."
-    opts.string "worktime_start", "Set your work start time. Format: HH:mm, e.g. '10:00'."
-    opts.string "worktime_end", "Set your work end time. Format: HH:mm, e.g. '18:00'."
+    opts.string "shift_start", "Set shift start time. Format: HH:mm, e.g. '10:00'."
+    opts.string "shift_end", "Set shift end time. Format: HH:mm, e.g. '18:00'."
     opts.bool "print", "Print all your configuration values."
 
     begin
@@ -77,23 +77,23 @@ class JiraLogwork
       rescue InvalidURLException
         Utilities.log("Invalid JIRA server URL.", { type: :error })
       end
-    elsif !config[:worktime_start].nil?
+    elsif !config[:shift_start].nil?
       begin
-        ConfigurationManager.instance.update_worktime_start(config[:worktime_start])
+        ConfigurationManager.instance.update_shift_start(config[:shift_start])
       rescue InvalidTimeException
         Utilities.log("Invalid starttime format.", { type: :error })
       end
-    elsif !config[:worktime_end].nil?
+    elsif !config[:shift_end].nil?
       begin
-        ConfigurationManager.instance.update_worktime_end(config[:worktime_end])
-        puts ConfigurationManager.instance.worktime_duration
+        ConfigurationManager.instance.update_shift_end(config[:shift_end])
+        puts ConfigurationManager.instance.shift_duration
       rescue InvalidTimeException
         Utilities.log("Invalid end time format.", { type: :error })
       end
     elsif config[:print]
       puts "url = #{ConfigurationManager.instance.print_value(:url)}"
-      puts "worktime_start = #{ConfigurationManager.instance.print_value(:worktime_start)}"
-      puts "worktime_end = #{ConfigurationManager.instance.print_value(:worktime_end)}"
+      puts "shift_start = #{ConfigurationManager.instance.print_value(:shift_start)}"
+      puts "shift_end = #{ConfigurationManager.instance.print_value(:shift_end)}"
     else
       print config
     end
