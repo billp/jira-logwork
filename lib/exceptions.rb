@@ -11,3 +11,6 @@ class InvalidURLException < StandardError; end
 # Worklog
 class InvalidTimeException < StandardError; end
 class InvalidShiftHoursDurationException < StandardError; end
+
+# Worklog manager
+class InvalidCommandException < StandardError; end

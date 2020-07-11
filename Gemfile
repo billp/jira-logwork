@@ -7,3 +7,6 @@ gem 'tty-prompt'
 gem 'yaml'
 gem 'openssl'
 gem 'rake'
+gem 'test-unit'
+
+# gem 'rake/testtask'
