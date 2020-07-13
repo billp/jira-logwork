@@ -1,9 +1,17 @@
+# frozen_string_literal: true
+
 require 'test/unit'
 require 'exceptions'
 require 'worklog_manager'
 require 'models/worklog_issue'
+require 'database'
 
+# Test WorkLogManager
 class TestWorklogManager < Test::Unit::TestCase
+  def setup
+    Database.prepare_database
+  end
+
   def test_wrong_command
     exception = false
     random_command = 'f 45' # will throw exception
@@ -56,7 +64,6 @@ class TestWorklogManager < Test::Unit::TestCase
       exception = true
     end
     assert_true exception
-
   end
 
   def test_insert_command_on_empty_array
@@ -118,5 +125,4 @@ class TestWorklogManager < Test::Unit::TestCase
       WorklogIssue.new(id: 4)
     ]
   end
-
 end

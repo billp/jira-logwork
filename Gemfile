@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 source 'http://rubygems.org'
 
+gem 'activerecord'
 gem 'faraday'
-gem 'faraday_middleware'
-gem 'slop'
-gem 'tty-prompt'
-gem 'yaml'
 gem 'openssl'
 gem 'rake'
+gem 'slop'
+gem 'sqlite3'
+gem 'terminal-table'
 gem 'test-unit'
-
-# gem 'rake/testtask'
+gem 'tty-prompt'
+gem 'yaml'
