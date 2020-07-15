@@ -124,6 +124,17 @@ class Utilities
     false
   end
 
+  def self.seconds_to_duration(secs)
+    components = [[60, :s], [60, :m], [24, :h], [Float::INFINITY, :d]]
+    res = components.map do |count, name|
+      if secs.positive?
+        secs, n = secs.divmod(count)
+        "#{n.to_i}#{name}" unless n.to_i.zero?
+      end
+    end
+    res.compact.reverse.join(' ')
+  end
+
   # Return the total hour duration between two time strings.
   #
   # @return [Int] Duration in hours.
