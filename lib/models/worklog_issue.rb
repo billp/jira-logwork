@@ -18,6 +18,7 @@
 # frozen_string_literal: true
 
 require 'active_record'
+require 'chronic_duration'
 
 # WorklogIssue model
 class WorklogIssue < ActiveRecord::Base
@@ -53,6 +54,14 @@ class WorklogIssue < ActiveRecord::Base
       adjustment_mode == other.adjustment_mode
   end
   # rubocop:enable Metrics/PerceivedComplexity, Metrics/AbcSize, Metrics/CyclomaticComplexity
+
+  def duration=(value)
+    seconds = ChronicDuration.parse(value)
+    raise InvalidIssueDuration.new, 'Invalid duration value' if seconds.nil?
+
+    self.converted_duration = seconds
+    super(value)
+  end
 
   private
 

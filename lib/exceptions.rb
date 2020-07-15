@@ -38,6 +38,7 @@ class InvalidShiftHoursDurationException < StandardError; end
 
 # Worklog manager
 class InvalidCommandException < StandardError; end
+class InvalidIssueDuration < StandardError; end
 
 # Scheduled
 class RepeatedOrScheduledRequired < StandardError; end

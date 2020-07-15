@@ -3,6 +3,7 @@
 source 'http://rubygems.org'
 
 gem 'activerecord'
+gem 'chronic_duration'
 gem 'faraday'
 gem 'openssl'
 gem 'rake'
