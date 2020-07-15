@@ -41,6 +41,19 @@ class WorklogIssue < ActiveRecord::Base
   # The adjustment mode. See AdjustmentMode module.
   enum adjustment_mode: %i[auto fixed]
 
+  # rubocop:disable Metrics/PerceivedComplexity, Metrics/AbcSize, Metrics/CyclomaticComplexity
+  def ==(other)
+    jira_id == other.jira_id &&
+      description == other.description &&
+      duration == other.duration &&
+      converted_duration == other.converted_duration &&
+      start_time == other.start_time &&
+      date == other.date &&
+      repeat == other.repeat &&
+      adjustment_mode == other.adjustment_mode
+  end
+  # rubocop:enable Metrics/PerceivedComplexity, Metrics/AbcSize, Metrics/CyclomaticComplexity
+
   private
 
   def set_status

@@ -24,22 +24,30 @@ require 'constants'
 
 # Database managment for scheduled issues
 class Database
-  def self.prepare_database
+  def self.open
     ActiveRecord::Base.establish_connection(
       adapter: 'sqlite3',
       database: database_path
     )
+  end
 
-    ActiveRecord::Base.connection.execute(create_table_sql)
+  def self.prepare_database
+    open
+    ActiveRecord::Base.connection.execute(create_table_sql('worklog_issues'))
+  end
+
+  def self.prepare_test_database
+    open
+    ActiveRecord::Base.connection.execute(create_table_sql('test_worklog_issues'))
   end
 
   private_class_method def self.database_path
     File.join(Dir.home, Constants::ROOT_FOLDER_NAME, 'scheduled.sqlite')
   end
 
-  private_class_method def self.create_table_sql
+  private_class_method def self.create_table_sql(table_name)
     <<-SQL
-      CREATE TABLE IF NOT EXISTS worklog_issues (
+      CREATE TABLE IF NOT EXISTS #{table_name} (
         id INTEGER PRIMARY KEY,
         jira_id TEXT NOT NULL,
         description TEXT NOT NULL,

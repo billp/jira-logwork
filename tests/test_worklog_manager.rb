@@ -9,7 +9,7 @@ require 'database'
 # Test WorkLogManager
 class TestWorklogManager < Test::Unit::TestCase
   def setup
-    Database.prepare_database
+    Database.prepare_test_database
   end
 
   def test_wrong_command
@@ -25,11 +25,10 @@ class TestWorklogManager < Test::Unit::TestCase
   end
 
   def test_move_command
-    issues = create_sample_issues
-    new_issues = WorklogManager.new.update_worklog('m 2 1', issues)
-
-    assert_equal new_issues[1].id, 2
-    assert_equal new_issues[2].id, 1
+    old_issues = create_sample_issues
+    new_issues = WorklogManager.new.update_worklog('m 2 1', create_sample_issues)
+    assert_equal new_issues[1], old_issues[2]
+    assert_equal new_issues[2], old_issues[1]
   end
 
   def test_move_command_errors
@@ -67,37 +66,37 @@ class TestWorklogManager < Test::Unit::TestCase
   end
 
   def test_insert_command_on_empty_array
-    issue = WorklogIssue.new(id: 200)
+    issue = create_sample_issues[1]
     new_issues = WorklogManager.new.update_worklog('i', nil, issue_to_add: issue)
     assert_not_nil new_issues
     assert_equal new_issues.class, Array
-    assert_equal new_issues[0].id, issue.id
+    assert_equal new_issues[0], issue
   end
 
   def test_insert_command
-    issue = WorklogIssue.new(id: 200)
+    issue = create_sample_issues[2]
     new_issues = WorklogManager.new.update_worklog('i 3', create_sample_issues, issue_to_add: issue)
 
-    assert_equal new_issues[3].id, issue.id
+    assert_equal new_issues[3], issue
   end
 
   def test_insert_command_on_last_position
-    issue = WorklogIssue.new(id: 200)
+    issue = create_sample_issues[3]
     new_issues = WorklogManager.new.update_worklog('i 5', create_sample_issues, issue_to_add: issue)
 
-    assert_equal new_issues[5].id, issue.id
+    assert_equal new_issues[5], issue
   end
 
   def test_insert_command_on_out_of_bounds
-    issue = WorklogIssue.new(id: 200)
+    issue = create_sample_issues[1]
     new_issues = WorklogManager.new.update_worklog('i 15', create_sample_issues, issue_to_add: issue)
 
-    assert_equal new_issues[5].id, issue.id
+    assert_equal new_issues[5], issue
   end
 
   def test_remove_command
     new_issues = WorklogManager.new.update_worklog('r 3', create_sample_issues)
-    assert_equal new_issues[3].id, 4
+    assert_equal new_issues[3], create_sample_issues[4]
   end
 
   def test_remove_command_out_of_bounds
@@ -116,13 +115,20 @@ class TestWorklogManager < Test::Unit::TestCase
     assert_equal new_issues[3].duration, '30m'
   end
 
+  # rubocop:disable Metrics/MethodLength
   def create_sample_issues
     [
-      WorklogIssue.new(id: 0),
-      WorklogIssue.new(id: 1),
-      WorklogIssue.new(id: 2),
-      WorklogIssue.new(id: 3),
-      WorklogIssue.new(id: 4)
+      WorklogIssue.new(jira_id: 'ABC-1234', description: 'Bug #1',
+                       adjustment_mode: :auto, duration: nil, start_time: '10:00', date: '10/10/2020', repeat: 5),
+      WorklogIssue.new(jira_id: 'ASDC-2131', description: 'Bug #2',
+                       adjustment_mode: :fixed, duration: '20m', repeat: 3),
+      WorklogIssue.new(jira_id: 'AXA-385', description: 'Bug #3',
+                       adjustment_mode: :auto, duration: '60m', repeat: 0),
+      WorklogIssue.new(jira_id: 'BAX-994', description: 'Bug #4',
+                       adjustment_mode: :fixed, duration: nil, date: nil, repeat: 2),
+      WorklogIssue.new(jira_id: 'XAS-511', description: 'Bug #5',
+                       adjustment_mode: :auto, duration: nil, date: nil, repeat: 1)
     ]
   end
+  # rubocop:enable Metrics/MethodLength
 end
