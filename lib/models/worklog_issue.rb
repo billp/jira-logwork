@@ -60,7 +60,7 @@ class WorklogIssue < ActiveRecord::Base
     raise InvalidIssueDuration.new, 'Invalid duration value' if seconds.nil?
 
     self.converted_duration = seconds
-    super(value)
+    super(Utilities.seconds_to_duration(seconds))
   end
 
   private
