@@ -5,6 +5,7 @@ require 'exceptions'
 require 'worklog_manager'
 require 'models/worklog_issue'
 require 'database'
+require 'utilities'
 
 # Test WorkLogManager
 class TestWorklogManager < Test::Unit::TestCase
@@ -66,32 +67,28 @@ class TestWorklogManager < Test::Unit::TestCase
   end
 
   def test_insert_command_on_empty_array
-    issue = create_sample_issues[1]
-    new_issues = WorklogManager.new.update_worklog('i', nil, issue_to_add: issue)
+    new_issues = WorklogManager.new.update_worklog('i', nil, issue_to_add: 'ABC-DEF132')
     assert_not_nil new_issues
     assert_equal new_issues.class, Array
-    assert_equal new_issues[0], issue
+    assert_equal new_issues[0], mocked_issue
   end
 
   def test_insert_command
-    issue = create_sample_issues[2]
-    new_issues = WorklogManager.new.update_worklog('i 3', create_sample_issues, issue_to_add: issue)
+    new_issues = WorklogManager.new.update_worklog('i 3', create_sample_issues, issue_to_add: 'ABC-DEF132')
 
-    assert_equal new_issues[3], issue
+    assert_equal new_issues[3], mocked_issue
   end
 
   def test_insert_command_on_last_position
-    issue = create_sample_issues[3]
-    new_issues = WorklogManager.new.update_worklog('i 5', create_sample_issues, issue_to_add: issue)
+    new_issues = WorklogManager.new.update_worklog('i 5', create_sample_issues, issue_to_add: 'ABC-DEF132')
 
-    assert_equal new_issues[5], issue
+    assert_equal new_issues[5], mocked_issue
   end
 
   def test_insert_command_on_out_of_bounds
-    issue = create_sample_issues[1]
-    new_issues = WorklogManager.new.update_worklog('i 15', create_sample_issues, issue_to_add: issue)
+    new_issues = WorklogManager.new.update_worklog('i 15', create_sample_issues, issue_to_add: 'ABC-DEF132')
 
-    assert_equal new_issues[5], issue
+    assert_equal new_issues[5], mocked_issue
   end
 
   def test_remove_command
@@ -131,4 +128,9 @@ class TestWorklogManager < Test::Unit::TestCase
     ]
   end
   # rubocop:enable Metrics/MethodLength
+
+  def mocked_issue
+    parsed = Utilities.parse_json(File.read('./tests/mock_data/issue.json'))
+    WorklogIssue.new(jira_id: parsed[:key], description: parsed[:fields][:summary])
+  end
 end

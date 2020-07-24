@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'communication/api'
+
 # Abstract class which represents a worklog command
 #
 class WorklogCommand
@@ -71,13 +73,14 @@ class InsertWorklogCommand < WorklogCommand
     @position_to_insert = @args.empty? ? 0 : Integer(@args[0])
   end
 
-  def update_issues(issues, issue_to_add)
-    raise ArgumentError, 'Missing issue param' if issue_to_add.nil?
+  def update_issues(issues, issue_id)
+    raise ArgumentError, 'Missing issue param' if issue_id.nil?
 
-    issues = [] if issues.nil?
-
-    @position_to_insert = issues.size if @position_to_insert > issues.size
-    issues.insert(@position_to_insert, issue_to_add)
+    API.get_issue(issue_id) do |issue|
+      issues = [] if issues.nil?
+      @position_to_insert = issues.size if @position_to_insert > issues.size
+      issues.insert(@position_to_insert, issue)
+    end
   end
 end
 

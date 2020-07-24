@@ -46,6 +46,11 @@ class Utilities
     print "#{LOG_SYMBOLS[type] ? ' ' + LOG_SYMBOLS[type] + ' ' : ''}#{message}" + (newline ? "\n" : '')
   end
 
+  # Parses the given body as JSON.
+  def self.parse_json(body)
+    JSON.parse(body, { symbolize_names: true })
+  end
+
   # Stores session cookie in tmp folder.
   #
   # @param cookie [String] The cookie string value.
@@ -140,6 +145,19 @@ class Utilities
   # @return [Int] Duration in hours.
   def self.time_diff_hours(start_time, end_time)
     (Time.parse(end_time) - Time.parse(start_time)).to_i / 3600
+  end
+
+  # Adds test stubs to faraday
+  def self.add_faraday_test_stub(builder)
+    builder.adapter :test do |stub|
+      stub.get('/rest/api/2/issue/ABC-DEF132') do
+        [
+          200,
+          { 'Content-Type': 'application/json' },
+          File.read('./tests/mock_data/issue.json')
+        ]
+      end
+    end
   end
 
   private_class_method def self.temp_folder_path

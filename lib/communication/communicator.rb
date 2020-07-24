@@ -89,11 +89,6 @@ class Communicator
     last_call.call(last_proc)
   end
 
-  # Parses the given body as JSON.
-  def parse_json(body)
-    JSON.parse(body, { symbolize_names: true })
-  end
-
   # Adds a cookie to request if it's found in connection's header.
   #
   # @param req The request object from Faraday lib.
@@ -164,6 +159,8 @@ class Communicator
     self.conn = Faraday.new(
       url: ConfigurationManager.instance.jira_server_url,
       headers: headers
-    )
+    ) do |builder|
+      Utilities.add_faraday_test_stub(builder)
+    end
   end
 end

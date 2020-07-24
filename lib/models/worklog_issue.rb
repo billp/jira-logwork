@@ -53,14 +53,17 @@ class WorklogIssue < ActiveRecord::Base
       repeat == other.repeat &&
       adjustment_mode == other.adjustment_mode
   end
-  # rubocop:enable Metrics/PerceivedComplexity, Metrics/AbcSize, Metrics/CyclomaticComplexity
 
   def duration=(value)
-    seconds = ChronicDuration.parse(value)
-    raise InvalidIssueDuration.new, 'Invalid duration value' if seconds.nil?
+    if value.nil?
+      super(value)
+    else
+      seconds = ChronicDuration.parse(value)
+      raise InvalidIssueDuration.new, 'Invalid duration value' if seconds.nil?
 
-    self.converted_duration = seconds
-    super(Utilities.seconds_to_duration(seconds))
+      self.converted_duration = seconds
+      super(Utilities.seconds_to_duration(seconds))
+    end
   end
 
   private

@@ -19,6 +19,7 @@
 
 require 'communication/communicator'
 require 'exceptions'
+require 'byebug'
 
 # Defines API calls
 class API

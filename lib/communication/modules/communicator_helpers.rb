@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'utilities'
+
 # Communicator helpers
 module CommunicatorHelpers
   def check_unauthorized(status, url)
@@ -34,7 +36,7 @@ module CommunicatorHelpers
   end
 
   def handle_success(body)
-    json_body = Utilities.valid_json?(body) ? parse_json(body) : '{}'
+    json_body = Utilities.valid_json?(body) ? Utilities.parse_json(body) : '{}'
     yield(json_body) if block_given?
   end
 
