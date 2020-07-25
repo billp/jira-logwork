@@ -124,3 +124,20 @@ class DurationWorklogCommand < WorklogCommand
     issues
   end
 end
+
+# Command for start time update action
+class StartTimeWorklogCommand < WorklogCommand
+  def initialize(arguments, workday_hours)
+    super
+    raise "Wrong numberof arguments #{@args}" if @args.size != 2
+
+    @pos = Integer(@args[0])
+    @start_time = @args[1]
+  end
+
+  def update_issues(issues, _)
+    check_out_of_bounds(issues, @pos)
+    issues[@pos].start_time = @start_time
+    issues
+  end
+end

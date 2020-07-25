@@ -58,7 +58,8 @@ class WorklogManager
     m: 'MoveWorklogCommand',
     d: 'DurationWorklogCommand',
     i: 'InsertWorklogCommand',
-    r: 'RemoveWorklogCommand'
+    r: 'RemoveWorklogCommand',
+    s: 'StartTimeWorklogCommand'
   }.freeze
 
   # Return the command executor object

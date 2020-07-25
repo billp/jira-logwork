@@ -112,6 +112,11 @@ class TestWorklogManager < Test::Unit::TestCase
     assert_equal new_issues[3].duration, '30m'
   end
 
+  def test_update_start_time_command
+    new_issues = WorklogManager.new.update_worklog('s 3 10:15', create_sample_issues)
+    assert_equal new_issues[3].start_time, '10:15'
+  end
+
   # rubocop:disable Metrics/MethodLength
   def create_sample_issues
     [
