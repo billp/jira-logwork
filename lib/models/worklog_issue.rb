@@ -39,10 +39,8 @@ class WorklogIssue < ActiveRecord::Base
   # An integer that indicates the day of the week that this issue will be repeated.
   # 0: Every day, 1: Monday, 2: Tuesday, 3: Wednesday, 4: Thursday, 5: Friday, 6: Saturday, 7: Sunday
   attribute :repeat
-  # The adjustment mode. See AdjustmentMode module.
-  enum adjustment_mode: %i[auto fixed]
 
-  # rubocop:disable Metrics/PerceivedComplexity, Metrics/AbcSize, Metrics/CyclomaticComplexity
+  # rubocop:disable Metrics/AbcSize
   def ==(other)
     jira_id == other.jira_id &&
       description == other.description &&
@@ -50,9 +48,9 @@ class WorklogIssue < ActiveRecord::Base
       converted_duration == other.converted_duration &&
       start_time == other.start_time &&
       date == other.date &&
-      repeat == other.repeat &&
-      adjustment_mode == other.adjustment_mode
+      repeat == other.repeat
   end
+  # rubocop:enable Metrics/AbcSize
 
   def duration=(value)
     if value.nil?
@@ -66,11 +64,11 @@ class WorklogIssue < ActiveRecord::Base
     end
   end
 
-  private
-
-  def set_status
-    self.adjustment_mode = duration.nil? ? :auto : :fixed
+  def adjustment_mode
+    converted_duration.nil? && duration.nil? ? :auto : :fixed
   end
+
+  private
 
   def check_duplicate
     return if WorklogIssue.where({ jira_id: jira_id, description: description, duration: duration,

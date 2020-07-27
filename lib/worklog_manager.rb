@@ -23,8 +23,9 @@ require_relative 'worklog_manager/worklog_command.rb'
 class WorklogManager
   # Construct
   # @param workday_hours [Integer] The total hours of a workday, e.g. 8
-  def initialize(workday_hours = nil)
+  def initialize(initial_issues = [], workday_hours = 8)
     @workday_hours = workday_hours
+    @issues = initial_issues
   end
 
   # Updates the daily worklog table by applying the given command.
@@ -44,14 +45,37 @@ class WorklogManager
   # @return [Array<WorklogIssue>] The updated array of work log issues.
   # @raise InvalidCommandException
   # @raise ArgumentError
-  def update_worklog(command, issues = nil, issue_to_add: nil)
+  def update_worklog(command, issue_to_add: nil)
     command_found = get_command(command.strip)
     raise InvalidCommandException, 'Wrong command' if command.nil? || command.empty? || command_found.nil?
 
-    command_found.update_issues(issues, issue_to_add)
+    command_found.update_issues(@issues, issue_to_add)
+  end
+
+  # Adjusts the issues
+  def adjust
+    auto_duration = available_duration / auto_issues.count
+
+    @issues.select { |issue| issue.adjustment_mode == :auto }.each { |issue| issue.converted_duration = auto_duration }
   end
 
   private
+
+  def auto_issues
+    @issues.select { |issue| issue.adjustment_mode == :auto }
+  end
+
+  def fixed_issues
+    @issues.select { |issue| issue.adjustment_mode == :fixed }
+  end
+
+  def total_fixed_duration
+    fixed_issues.reduce(0) { |res, issue| res + issue.converted_duration }
+  end
+
+  def available_duration
+    @workday_hours * 60 * 60 - total_fixed_duration
+  end
 
   # Represent command and class name
   COMMANDS = {

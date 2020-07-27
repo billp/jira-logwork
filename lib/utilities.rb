@@ -151,11 +151,10 @@ class Utilities
   def self.add_faraday_test_stub(builder)
     builder.adapter :test do |stub|
       stub.get('/rest/api/2/issue/ABC-DEF132') do
-        [
-          200,
-          { 'Content-Type': 'application/json' },
-          File.read('./tests/mock_data/issue.json')
-        ]
+        [200, { 'Content-Type': 'application/json' }, File.read('./tests/mock_data/issue.json')]
+      end
+      stub.get('/rest/api/2/issue/ABC-DEF133') do
+        [200, { 'Content-Type': 'application/json' }, File.read('./tests/mock_data/issue2.json')]
       end
     end
   end
