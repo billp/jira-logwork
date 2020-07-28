@@ -19,6 +19,7 @@
 
 require 'active_record'
 require 'chronic_duration'
+require 'configuration/shift_configuration'
 
 # WorklogIssue model
 class WorklogIssue < ActiveRecord::Base
@@ -39,6 +40,8 @@ class WorklogIssue < ActiveRecord::Base
   # An integer that indicates the day of the week that this issue will be repeated.
   # 0: Every day, 1: Monday, 2: Tuesday, 3: Wednesday, 4: Thursday, 5: Friday, 6: Saturday, 7: Sunday
   attribute :repeat
+  # The adjustment mode. See AdjustmentMode module.
+  enum adjustment_mode: %I[auto fixed]
 
   # rubocop:disable Metrics/AbcSize
   def ==(other)
@@ -64,8 +67,10 @@ class WorklogIssue < ActiveRecord::Base
     end
   end
 
-  def adjustment_mode
-    converted_duration.nil? && duration.nil? ? :auto : :fixed
+  def converted_start_time
+    return nil if start_time.nil?
+
+    Utilities.time_diff_seconds(ShiftConfiguration.new.shift_start, start_time)
   end
 
   private

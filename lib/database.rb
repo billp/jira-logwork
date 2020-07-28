@@ -52,6 +52,7 @@ class Database
         id INTEGER PRIMARY KEY,
         jira_id TEXT NOT NULL,
         description TEXT NOT NULL,
+        adjustment_mode INTEGER NOT NULL DEFAULT 0,
         duration TEXT,
         converted_duration INTEGER,
         start_time TEXT,

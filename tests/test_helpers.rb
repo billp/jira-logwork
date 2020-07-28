@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'models/worklog_issue'
+require 'configuration/shift_configuration'
 
 # Test Helpers.
 class TestHelpers
@@ -23,7 +24,8 @@ class TestHelpers
 
   def self.setup_test
     Database.prepare_test_database
-    ConfigurationManager.instance.expects(:jira_server_url).at_most_once.with(nil).returns('http://www.google.com')
+    ConfigurationManager.instance.expects(:jira_server_url).at_least(0).with(nil).returns('http://www.google.com')
+    ShiftConfiguration.any_instance.expects(:shift_start).at_least(0).with(nil).returns('10:00')
   end
 
   def self.mocked_issue

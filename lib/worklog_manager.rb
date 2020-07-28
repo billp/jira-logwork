@@ -54,23 +54,42 @@ class WorklogManager
 
   # Adjusts the issues
   def adjust
-    auto_duration = available_duration / auto_issues.count
-
-    @issues.select { |issue| issue.adjustment_mode == :auto }.each { |issue| issue.converted_duration = auto_duration }
+    fill_auto_durations
+    static_issues
   end
 
   private
 
+  # Fill durations for auto issues.
+  def fill_auto_durations
+    @issues.select { |issue| issue.adjustment_mode == 'auto' }
+           .each { |issue| issue.converted_duration = auto_duration }
+  end
+
+  # Issues that will be automatically adjusted.
   def auto_issues
-    @issues.select { |issue| issue.adjustment_mode == :auto }
+    @issues.select { |issue| issue.adjustment_mode == 'auto' }
   end
 
+  # Issues that has fixed duration.
   def fixed_issues
-    @issues.select { |issue| issue.adjustment_mode == :fixed }
+    @issues.select { |issue| issue.adjustment_mode == 'fixed' }
   end
 
+  # Total duration of fixed issues.
   def total_fixed_duration
     fixed_issues.reduce(0) { |res, issue| res + issue.converted_duration }
+  end
+
+  # Issues that have start time and duration.
+  def static_issues
+    fixed_issues.reject { |issue| issue.converted_start_time.nil? }
+                .sort { |a, b| a.converted_start_time <=> b.converted_start_time }
+  end
+
+  # The single-issue duration the issue needs to be filled.
+  def auto_duration
+    available_duration / auto_issues.count
   end
 
   def available_duration

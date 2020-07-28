@@ -81,7 +81,6 @@ class Utilities
   # Validates a URL string
   #
   # @return [Boolean] True if URL is valid, false otherwise.
-
   def self.valid_url?(url)
     uri = URI.parse(url)
     !uri.nil? && !uri.host.nil?
@@ -142,9 +141,20 @@ class Utilities
 
   # Return the total hour duration between two time strings.
   #
+  # @param start_time The start time in 24h format, e.g. 10:00.
+  # @param end_time The end time in 24h format, e.g. 18:00.
   # @return [Int] Duration in hours.
   def self.time_diff_hours(start_time, end_time)
     (Time.parse(end_time) - Time.parse(start_time)).to_i / 3600
+  end
+
+  # Return the total hour duration between two time strings.
+  #
+  # @param start_time The start time in 24h format, e.g. 10:00.
+  # @param end_time The end time in 24h format, e.g. 18:00.
+  # @return [Int] Duration in hours.
+  def self.time_diff_seconds(start_time, end_time)
+    (Time.parse(end_time) - Time.parse(start_time)).to_i
   end
 
   # Adds test stubs to faraday
