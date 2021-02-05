@@ -115,6 +115,6 @@ class ConfigurationManager
   end
 
   def create_config_dir_if_needed
-    Dir.mkdir(File.dirname(configuration_path)) unless configuration_exists?
+    Dir.mkdir(File.dirname(configuration_path)) unless Dir.exist?(File.dirname(configuration_path))
   end
 end
