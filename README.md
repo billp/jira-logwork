@@ -1,24 +1,27 @@
-
-# jira-logwork
-Sick of manualy adjusting your daily worklog in Jira? Then this tool is for you.
-It helps you quickly build your daily worklog by suggesting your recent visited Jira issues and automatically adjusts them to fill your required work schedule.
+<p align="center">
+	<img width="600px" src="https://raw.githubusercontent.com/billp/jira-logwork/master/jira-logwork-logo.svg">
+</p>
+<p align="center">
+Sick of having to manually adjust your daily worklog on Jira? Then this tool is for you. <br />
+It helps you quickly create your daily worklog by providing the JIRA IDs and the desirable duration
+</p>
 
 ## Features
- - Add your tickets you log every day. (e.g. daily stand up)
- - Quick select which tickets to log from the suggestion list.
- - Change the worklog duration from one ticket, and it will automatically adjust the rest to fill your required daily schedule.
 
- ## Getting started
-You need to run the initial setup wizard which will ask you to provide the essential setup configuration parameters, like JIRA Server URL, login credentials, etc.
-To do so, run the following command:
+ ⏱️ Create your daily work-log table using a command line wizard or an one-line command.
+ 🎛️ Specify the **issue id** and optionally the duration and start time, and let the tool expand the time as needed to fill your daily log hours.
+
+ ## Getting Started
+You need to run the initial setup wizard which will ask you to provide some required initial parameters, like JIRA Server URL, login credentials, etc.
+
+Run the following command in Terminal:
 ```bash
 jira-logwork setup
 ```
 
-## Manually update configuration
-You can manually update the configuration parameters by using the config command:
+## Manually Change Configuration
+You can manually change the configuration parameters with the following command:
 
 ```bash
-# Get help about the available configuration parameters
-jira-logwork config
+jira-logwork config [param] [[value1] [value2] ...]
 ```
