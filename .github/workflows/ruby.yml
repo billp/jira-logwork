@@ -33,5 +33,5 @@ jobs:
         run: bundle install
       - name: Run tests
         run: bundle exec rake tests
-      - name: Ensure ruby files are running
-        run: ruby
+      - name: Ensure ruby main program is running
+        run: ruby ./bin/jira-logwork
