@@ -8,8 +8,9 @@ It helps you quickly create your daily worklog by providing the JIRA IDs and the
 
 ## Features
 
- ⏱️ Create your daily work-log table using a command line wizard or an one-line command. <br />
- 🎛️ Specify the **issue id** and optionally the duration and start time, and let the tool expand the time as needed to fill your daily log hours.
+▫️ Create your daily work-log table using a command line wizard or an one-line command. <br />
+▫️ Specify the **issue id** and optionally the duration and start time, and let the tool expand the time as needed to fill your daily log hours.
+
 
  ## Getting Started
 You need to run the initial setup wizard which will ask you to provide some required initial parameters, like JIRA Server URL, login credentials, etc.
