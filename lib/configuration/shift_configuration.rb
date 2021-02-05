@@ -18,7 +18,6 @@
 # frozen_string_literal: true
 
 require 'configuration/configuration'
-require 'byebug'
 # Configuration for credentials.
 class ShiftConfiguration < Configuration
   # Read shift start.
