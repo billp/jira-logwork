@@ -26,8 +26,6 @@ class SessionManager
     self.credentials = account_credentials
   end
 
-  require 'byebug'
-
   # Logs in a user or prompts with login credentials if it's not logged in.
   #
   # @param [AccountCredentials] an accound credentials instance.

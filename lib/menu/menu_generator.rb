@@ -49,7 +49,7 @@ class MenuGenerator
     opts.string 'url', 'Set the JIRA Server URL.'
     opts.string 'shift_start', "Set shift start time. Format: HH:mm, e.g. '10:00'."
     opts.string 'shift_end', "Set shift end time. Format: HH:mm, e.g. '18:00'."
-    opts.bool 'print', 'Print all your configuration values.'
+    opts.bool 'list', 'Lists all configuration values.'
 
     Slop::Parser.new(opts).parse(ARGV[1..ARGV.count - 1])
   rescue Slop::MissingArgument => e

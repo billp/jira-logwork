@@ -27,7 +27,7 @@ class MenuConfig < Menu
       url: proc { set_url },
       shift_start: proc { set_shift_start },
       shift_end: proc { set_shift_end },
-      print: proc { run_print }
+      list: proc { run_list }
     }
   end
 
@@ -36,7 +36,7 @@ class MenuConfig < Menu
       url: menu[:url],
       shift_start: menu[:shift_start],
       shift_end: menu[:shift_end],
-      print: menu[:print]
+      list: menu[:list]
     }
   end
 
@@ -62,7 +62,7 @@ class MenuConfig < Menu
   end
 
   # rubocop:disable Metrics/AbcSize
-  def run_print
+  def run_list
     values = [
       { key: :url, value: proc { ConfigurationManager.instance.jira_server_url } },
       { key: :shift_start, value: proc { ShiftConfiguration.new.shift_start } },
