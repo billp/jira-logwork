@@ -3,7 +3,7 @@
 </p>
 <p align="center">
 Sick of having to manually adjust your daily worklog on Jira? Then this tool is for you. <br />
-It helps you quickly create your daily worklog by providing the JIRA IDs and the desirable duration
+It helps you quickly create your daily worklog by providing the issue ids and the desirable duration.
 </p>
 
 ## Features
