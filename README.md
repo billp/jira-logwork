@@ -2,18 +2,20 @@
 	<img width="600px" src="https://raw.githubusercontent.com/billp/jira-logwork/master/jira-logwork-logo.svg">
 </p>
 <p align="center">
-Sick of having to manually adjust your daily worklog on Jira? Then this tool is for you. <br />
-It helps you quickly create your daily worklog by providing the issue ids and the desirable duration.
+  <i>
+    Sick of spending too much time logging your daily work hours on Jira? Then this tool is for you. <br />
+    It helps you quickly create your daily work hours table by providing the issue ids and the desirable duration.
+  </i>
 </p>
 
 ## Features
 
-▫️ Create your daily work-log table using a command line wizard or an one-line command. <br />
-▫️ Specify the **issue id** and optionally the duration and start time, and let the tool expand the time as needed to fill your daily log hours.
+▫️ Create your daily work hours table using a command line wizard or an one-line command. <br />
+▫️ Specify the **issue id** and optionally the duration and start time, then let the tool expand the time as needed to fill your daily work hours.
 
 
  ## Getting Started
-You need to run the initial setup wizard which will ask you to provide some required initial parameters, like JIRA Server URL, login credentials, etc.
+To get started you need to run the initial setup wizard which will ask you to provide the required parameters, like JIRA Server URL, login credentials, etc.
 
 Run the following command in Terminal:
 ```bash
