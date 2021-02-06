@@ -15,8 +15,6 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 require 'configuration/configuration'
 
 # Configuration for credentials.
@@ -69,7 +67,7 @@ class CredentialsConfiguration < Configuration
   CREDENTIALS_KEY = 'kserw-gw?-vale kati -edw!@#!@!#@&!#@!'
 
   def encrypt(password)
-    cipher = OpenSSL::Cipher::AES256.new :CBC
+    cipher = OpenSSL::Cipher.new('aes-256-cbc')
     cipher.encrypt
     cipher.key = Digest::SHA256.digest(CREDENTIALS_KEY)
     iv = cipher.random_iv
@@ -78,7 +76,7 @@ class CredentialsConfiguration < Configuration
   end
 
   def decrypt(cipher, iv_data)
-    decipher = OpenSSL::Cipher::AES256.new :CBC
+    decipher = OpenSSL::Cipher.new('aes-256-cbc')
     decipher.iv = iv_data
     decipher.decrypt
     decipher.key = Digest::SHA256.digest(CREDENTIALS_KEY)

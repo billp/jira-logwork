@@ -15,8 +15,6 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 require 'menu/menu'
 require 'configuration/shift_configuration'
 
@@ -68,7 +66,7 @@ class MenuConfig < Menu
       { key: :shift_start, value: proc { ShiftConfiguration.new.shift_start } },
       { key: :shift_end, value: proc { ShiftConfiguration.new.shift_end } },
       { key: :username, value: proc { CredentialsConfiguration.new.login_credentials.username } },
-      { key: :password, value: proc { !CredentialsConfiguration.new.login_credentials.password.nil? ? '****' : nil } }
+      { key: :password, value: proc { CredentialsConfiguration.new.login_credentials.password.nil? ? nil : '****' } }
     ]
 
     values.each { |v| print_config_value(v) }

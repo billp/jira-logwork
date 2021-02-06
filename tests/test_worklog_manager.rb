@@ -1,13 +1,11 @@
-# frozen_string_literal: true
-
-require 'test/unit'
+require 'minitest/autorun'
 require 'exceptions'
 require 'worklog_manager'
 require 'models/worklog_issue'
 require 'database'
 
 # Test WorkLogManager
-class TestWorklogManager < Test::Unit::TestCase
+class TestWorklogManager < Minitest::Test
   def setup
     Database.prepare_database
   end
@@ -21,7 +19,7 @@ class TestWorklogManager < Test::Unit::TestCase
       exception = true
     end
 
-    assert_true exception
+    assert exception
   end
 
   def test_move_command
@@ -41,7 +39,7 @@ class TestWorklogManager < Test::Unit::TestCase
       exception = true
     end
 
-    assert_true exception
+    assert exception
   end
 
   def test_move_command_same_argument
@@ -53,7 +51,7 @@ class TestWorklogManager < Test::Unit::TestCase
       exception = true
     end
 
-    assert_true exception
+    assert exception
   end
 
   def test_insert_command_with_nil_issue
@@ -63,13 +61,13 @@ class TestWorklogManager < Test::Unit::TestCase
     rescue ArgumentError
       exception = true
     end
-    assert_true exception
+    assert exception
   end
 
   def test_insert_command_on_empty_array
     issue = WorklogIssue.new(id: 200)
     new_issues = WorklogManager.new.update_worklog('i', nil, issue_to_add: issue)
-    assert_not_nil new_issues
+    assert !new_issues.nil?
     assert_equal new_issues.class, Array
     assert_equal new_issues[0].id, issue.id
   end
@@ -108,7 +106,7 @@ class TestWorklogManager < Test::Unit::TestCase
       exception = true
     end
 
-    assert_true exception
+    assert exception
   end
 
   def test_duration_command

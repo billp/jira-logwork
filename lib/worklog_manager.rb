@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Copyright © 2020-2021. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -15,8 +17,9 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-require_relative 'worklog_manager/worklog_command.rb'
+require_relative 'worklog_manager/worklog_command'
 
+# Manages the Worklog table.
 class WorklogManager
   # Construct
   # @param workday_hours [Integer] The total hours of a workday, e.g. 8
@@ -27,14 +30,14 @@ class WorklogManager
   # Updates the daily worklog table by applying the given command.
   #
   # @param command [String] The command that will be applied to the issues parameter. The available commands are:
-  #                         - move | m [pos1] [pos2] (e.g. 'm 2 1', it moves the issue from position 1 to position 2 (swipes
-  #                                 issues)
+  #                         - move | m [pos1] [pos2] (e.g. 'm 2 1', it moves the issue from position 1 to position 2
+  #                                 (swipes issues)
   #                         - duration | d [pos] [duration] (e.g. 'd 3 30m', it changes the duration of the issue
   #                                  at position 3 to 30 minutes).
   #                                 Pass 'auto' to automatically expand the duration to fill the required working hours.
   #                         - remove | r [pos] (e.g 'r 3', remove from the position 3)
-  #                         - insert | i [pos] (e.g 'i 3', insert into position 3. Pos parameter can be omitted and  the new
-  #                                 issue will be inserted at the end )
+  #                         - insert | i [pos] (e.g 'i 3', insert into position 3. Pos parameter can be omitted and
+  #                                 the new issue will be inserted at the end )
   # @param issues [Array<WorklogIssue>] The array of worklog issues.
   #
   # @return [Array<WorklogIssue>] The updated array of work log issues.
@@ -47,7 +50,6 @@ class WorklogManager
     command_found.update_issues(issues, issue_to_add)
   end
 
-
   private
 
   # Represent command and class name
@@ -57,7 +59,6 @@ class WorklogManager
     i: 'InsertWorklogCommand',
     r: 'RemoveWorklogCommand'
   }.freeze
-
 
   # Return the command executor object
   # @param [String] total_command Should be stripped from spaces
@@ -71,5 +72,4 @@ class WorklogManager
     # puts "Got classname #{class_name} for command #{command_code}"
     Object.const_get(class_name).new(arguments, @workday_hours) unless class_name.nil?
   end
-
 end

@@ -15,8 +15,6 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 # rubocop:disable Metrics/MethodLength, Style/Alias, Style/RescueModifier, Style/RaiseArgs, Layout/LineLength, Style/Documentation, Lint/MissingCopEnableDirective
 
 class Hash
@@ -46,7 +44,7 @@ class Hash
   def symbolize_keys
     transform_keys { |key| key.to_sym rescue key }
   end
-  alias_method :to_options,  :symbolize_keys
+  alias_method :to_options, :symbolize_keys
 
   # Destructively converts all keys to symbols, as long as they respond
   # to +to_sym+. Same as +symbolize_keys+, but modifies +self+.
@@ -149,7 +147,7 @@ class Hash
   def _deep_transform_keys_in_object!(object, &block)
     case object
     when Hash
-      object.keys.each do |key|
+      object.each_key do |key|
         value = object.delete(key)
         object[yield(key)] = _deep_transform_keys_in_object!(value, &block)
       end

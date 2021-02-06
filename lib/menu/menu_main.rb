@@ -15,8 +15,6 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 require 'menu/menu'
 
 # MenuMain handlers
@@ -40,7 +38,7 @@ class MenuMain < Menu
   # Login user
   def run_login
     if SessionManager.logged_in?
-      Utilities.log('You are already logged in.', { type: :success })
+      Utilities.log('You are already logged in.', { type: :info })
     else
       Utilities.log('Please enter your login credentials.')
       SetupWizard.new.configure_login_credentials

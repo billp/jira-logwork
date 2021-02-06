@@ -15,8 +15,6 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 require 'menu/menu'
 require 'scheduled/scheduled_issues_manager'
 require 'database'
@@ -53,9 +51,9 @@ class MenuScheduled < Menu
     Database.prepare_database
     deleted_count = ScheduledIssuesManager.new.remove_scheduled(menu[:remove], menu[:date], menu[:repeat])
     if deleted_count.positive?
-      Utilities.log("#{deleted_count} issues deleted.")
+      Utilities.log("#{deleted_count} #{Utilities.pluralize(deleted_count, 'issue', 'issues')} deleted.")
     else
-      Utilities.log('No issue(s) found with the given options.')
+      Utilities.log('No issues found with the given options.', { type: :error })
     end
   end
 

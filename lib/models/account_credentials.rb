@@ -15,15 +15,11 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 require 'models/modules/hashable_init'
 
 # AccountCredentials model
 class AccountCredentials
   include HashableInit
 
-  attr_accessor :username
-  attr_accessor :password
-  attr_accessor :is_stored
+  attr_accessor :username, :password, :is_stored
 end

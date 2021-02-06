@@ -15,8 +15,6 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 # Abstract class which represents a worklog command
 #
 class WorklogCommand
@@ -24,7 +22,7 @@ class WorklogCommand
     return if arguments.nil?
     raise ArgumentError, 'arguments should be a string' if arguments.class != String
 
-    @args = arguments.strip.split(' ')
+    @args = arguments.strip.split
     @workday_hours = workday_hours
   end
 

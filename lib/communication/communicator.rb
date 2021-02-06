@@ -15,8 +15,6 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 require 'faraday'
 require 'json'
 require 'tty-prompt'
@@ -30,8 +28,7 @@ class Communicator
   include Singleton
   include CommunicatorHelpers
 
-  attr_accessor :last_call
-  attr_accessor :last_proc
+  attr_accessor :last_call, :last_proc
 
   def initialize
     open
@@ -52,7 +49,8 @@ class Communicator
   # Makes a POST request.
   #
   # @param path [String] The path of the request.
-  # @params params [Hash] The params of post request.
+  # @param params [Hash] The params of post request.
+  # @param block [Block] A block of code to be executed on success.
   def post(path, params = {}, &block)
     run_call(path, block) do |yield_block|
       res = conn.post(path) do |req|
@@ -109,16 +107,16 @@ class Communicator
   # @return [Hash] An object with an error message specified by 'error' key, or a { success: true }
   def log_work(issue_id, started, seconds_spent)
     params = {
-      "started": started,
-      "timeSpentSeconds": seconds_spent
+      started: started,
+      timeSpentSeconds: seconds_spent
     }
 
     res = post("#{Communicator.base_api_url}/issue/#{issue_id}/worklog", params)
 
-    if res.status != 200
-      { error: "Something went wrong! (#{res.status})" }
-    else
+    if res.status == 200
       { success: true }
+    else
+      { error: "Something went wrong! (#{res.status})" }
     end
   end
 
@@ -152,8 +150,7 @@ class Communicator
 
   private
 
-  attr_accessor :conn
-  attr_accessor :relogin_performed
+  attr_accessor :conn, :relogin_performed
 
   # Opens a connection.
   def open
