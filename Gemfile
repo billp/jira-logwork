@@ -1,9 +1,8 @@
-# frozen_string_literal: true
-
 source 'http://rubygems.org'
 
 gem 'activerecord'
 gem 'faraday'
+gem 'minitest'
 gem 'openssl'
 gem 'rake'
 gem 'slop'

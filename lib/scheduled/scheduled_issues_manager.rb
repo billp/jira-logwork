@@ -15,8 +15,6 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 require 'utilities'
 require 'exceptions'
 require 'communication/api'
@@ -38,12 +36,12 @@ class ScheduledIssuesManager
   #                             7: Sunday
   # @param date [String] A date that the issue will be scheduled in MM/DD/YYYY format.
   # @param start_time [String] The String representation of start time in 24h format, e.g. 10:00
-  # @param duration [String] The String representation of duration, e.g. 2h30m
+  # @param duration [String] A String representation of duration, e.g. 2h30m
   def add_scheduled(issue_id, repeat, date, start_time, duration)
     validate_input(repeat, date, start_time, duration)
     API.get_issue(issue_id) do |issue|
       update_issue_attributes(issue, repeat, date, start_time, duration).save
-      Utilities.log "Added: '#{issue.jira_id}: #{issue.description}'", { type: :success }
+      Utilities.log "Added issue #{issue.jira_id}: #{issue.description}.", { type: :info }
     end
   rescue APIResourceNotFoundException
     Utilities.log("JIRA issue '#{issue_id}' not found.", { type: :error })
@@ -55,10 +53,10 @@ class ScheduledIssuesManager
   # Updates issue's attributes with command line arguments
   #
   # @param issue [WorklogIssue] The WorklogIssue created by API service.
-  # @param repeat [String] The date input of the issue.
+  # @param repeat [String] A number that indicates the date of the week.
   # @param date [String] The date input of the issue.
   # @param start_time [String] The start time input of the issue.
-  # @param duration [String] The duration input of the issue.
+  # @param duration [String] A String representation of duration, e.g. 2h30m
   def update_issue_attributes(issue, repeat, date, start_time, duration)
     issue.date = date
     issue.start_time = start_time
@@ -70,8 +68,8 @@ class ScheduledIssuesManager
   # Remove a scheduled issue from database.
   #
   # @param issue_id [String] The JIRA issue id.
-  # @param issue_id [String] The start_time input of the issue.
-  # @param date [String] The duration input of the issue.
+  # @param date [String] The date of the issue.
+  # @param repeat [String] A number that indicates the date of the week.
   def remove_scheduled(issue_id, date, repeat)
     filters = { jira_id: issue_id }
     filters[:date] = date unless date.nil?

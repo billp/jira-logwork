@@ -15,15 +15,13 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 # Menu main class
 class Menu
   # Initialize a new menu
   #
-  # @param [Slop:Result] A slop menu instance.
-  # @param [Hash] A hash that includes the command line arguments.
-  # @param [Hash] A hash that includes procs that will be executed for each command.
+  # @param [Slop:Result] menu A slop menu instance.
+  # @param [Hash] input_map A hash that includes the command line arguments.
+  # @param [Hash] procs_map A hash that includes procs that will be executed for each command.
   def initialize(menu, input_map = {}, procs_map = {})
     self.menu = menu
 

@@ -15,8 +15,6 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 require 'sqlite3'
 require 'active_record'
 require 'models/worklog_issue'
@@ -34,7 +32,7 @@ class Database
   end
 
   private_class_method def self.database_path
-    File.join(Dir.home, Constants::ROOT_FOLDER_NAME, 'scheduled.sqlite')
+    File.join(Dir.home, Constants::ROOT_CONFIGURATION_FOLDER_NAME, 'scheduled.sqlite')
   end
 
   private_class_method def self.create_table_sql

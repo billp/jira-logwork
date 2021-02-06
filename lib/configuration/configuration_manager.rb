@@ -15,8 +15,6 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 require 'pathname'
 require 'yaml'
 require 'external/hash'
@@ -61,9 +59,7 @@ class ConfigurationManager
     save_configuration
   end
 
-  # Writes configuration to user's home folder.
-  #
-  # @param settings [Hash] The settings hash that will be saved in yml format.
+  # Writes configuration jira-worklog configuration folder.
   def save_configuration
     create_config_dir_if_needed
     unless configuration_writable?
@@ -78,7 +74,7 @@ class ConfigurationManager
   #
   # @return [String] The absolute configuration path.
   def configuration_path
-    File.join(home_dir, Constants::ROOT_FOLDER_NAME, CONFIGURATION_FILENAME)
+    File.join(home_dir, Constants::ROOT_CONFIGURATION_FOLDER_NAME, CONFIGURATION_FILENAME)
   end
 
   private

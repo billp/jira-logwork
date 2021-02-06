@@ -1,0 +1,6 @@
+Style/FrozenStringLiteralComment: 
+  Enabled: false
+Style/MutableConstant:
+  Enabled: false
+AllCops:
+  NewCops: enable

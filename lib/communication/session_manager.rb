@@ -15,8 +15,6 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 require 'communication/communicator'
 require 'exceptions'
 
@@ -28,8 +26,8 @@ class SessionManager
 
   # Logs in a user or prompts with login credentials if it's not logged in.
   #
-  # @param [AccountCredentials] an accound credentials instance.
-  def login(force = false)
+  # @param force [Bool] Pass true to force login regardleess of login state.
+  def login(force: false)
     raise UserAlreadyLoggedInException.new, 'You are already logged in.' if SessionManager.logged_in? && !force
 
     params = {
@@ -60,7 +58,7 @@ class SessionManager
   end
 
   def store_cookie(body)
-    cookie = body[:session][:name] + '=' + body[:session][:value]
+    cookie = "#{body[:session][:name]}=#{body[:session][:value]}"
     Communicator.instance.store_cookie(cookie)
   end
 

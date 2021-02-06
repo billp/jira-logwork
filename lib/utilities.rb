@@ -15,8 +15,6 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# frozen_string_literal: true
-
 require 'fileutils'
 require 'constants'
 require 'time'
@@ -25,7 +23,7 @@ require 'date'
 # Utilities
 class Utilities
   LOG_SYMBOLS = {
-    info: '￫ ',
+    info: '￫',
     success: '🎉',
     error: '😓',
     none: ''
@@ -38,12 +36,12 @@ class Utilities
   # Logs a message to console.
   #
   # @param message [String] The message to log.
-  # @param type [Symbol] Log type, `:info`, `:success`, `:error` or `:none`.
+  # @param options [Hash] Log type: `:info`, `:success`, `:error` or `:none`.
   def self.log(message, options = {})
     type = options[:type] || :info
     newline = options[:newline] || true
 
-    print "#{LOG_SYMBOLS[type] ? ' ' + LOG_SYMBOLS[type] + ' ' : ''}#{message}" + (newline ? "\n" : '')
+    print "#{LOG_SYMBOLS[type] ? " #{LOG_SYMBOLS[type]} " : ''}#{message}" + (newline ? "\n" : '')
   end
 
   # Stores session cookie in tmp folder.
@@ -86,7 +84,7 @@ class Utilities
 
   # Validates a JSON String
   #
-  # @param [String] A JSON String.
+  # @param json [String] A JSON String.
   def self.valid_json?(json)
     JSON.parse(json)
     true
@@ -131,8 +129,19 @@ class Utilities
     (Time.parse(end_time) - Time.parse(start_time)).to_i / 3600
   end
 
+  # Return the singluar or plural version of the string.
+  #
+  # @param count [Int] The count of context.
+  # @param singular [String] The word in singular form.
+  # @param plural [String] The word in plural form.
+  # @return [Int] Duration in hours.
+  def self.pluralize(count, singular, plural)
+    count.zero? && return
+    count == 1 ? singular : plural
+  end
+
   private_class_method def self.temp_folder_path
-    File.expand_path(File.join(Dir.home, Constants::ROOT_FOLDER_NAME, TEMP_FOLDER_NAME))
+    File.expand_path(File.join(Dir.home, Constants::ROOT_CONFIGURATION_FOLDER_NAME, TEMP_FOLDER_NAME))
   end
 
   private_class_method def self.cookie_file_path
