@@ -81,7 +81,7 @@ module Communication
       self.cached_request_callback = callback
       self.cached_success_callback = success_block
 
-      callback(success_block)
+      callback.call(success_block)
     end
 
     # Parses the given body as JSON.

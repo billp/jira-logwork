@@ -29,9 +29,9 @@ module Configuration
               "Cannot read username/password from configuration file at '#{manager.configuration_path}'."
       end
 
-      AccountCredentials.new(username: data[:credentials][:username],
-                             password: decrypted_password,
-                             is_stored: true)
+      Model::AccountCredentials.new(username: data[:credentials][:username],
+                                    password: decrypted_password,
+                                    is_stored: true)
     end
 
     def login_credentials_empty?
