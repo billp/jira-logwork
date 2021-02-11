@@ -31,7 +31,7 @@ jobs:
           ruby-version: 2.6
       - name: Install dependencies
         run: bundle install
-      - name: Run tests
-        run: bundle exec rake tests
+      - name: Run rspec
+        run: bundle exec rake spec
       - name: Run rubocop
         run: gem install rubocop && rubocop

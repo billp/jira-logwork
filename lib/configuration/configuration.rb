@@ -15,14 +15,16 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-require 'configuration/configuration_manager'
+require "configuration/configuration_manager"
 
-# Root class for Configuration
-class Configuration
-  attr_accessor :manager, :data
+module Configuration
+  # Root class for Configuration
+  class Configuration
+    attr_accessor :manager, :data
 
-  def initialize
-    self.manager = ConfigurationManager.instance
-    self.data = manager.configuration_data
+    def initialize
+      self.manager = ConfigurationManager.instance
+      self.data = manager.configuration_data
+    end
   end
 end

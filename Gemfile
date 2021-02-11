@@ -1,13 +1,13 @@
-source 'http://rubygems.org'
+source "http://rubygems.org"
 
-gem 'activerecord'
-gem 'faraday'
-gem 'minitest'
-gem 'openssl'
-gem 'rake'
-gem 'slop'
-gem 'sqlite3'
-gem 'terminal-table'
-gem 'test-unit'
-gem 'tty-prompt'
-gem 'yaml'
+gem "activerecord"
+gem "faraday"
+gem "minitest"
+gem "openssl"
+gem "rake"
+gem "rspec"
+gem "slop"
+gem "sqlite3"
+gem "terminal-table"
+gem "test-unit"
+gem "yaml"

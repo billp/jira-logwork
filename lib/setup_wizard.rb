@@ -15,10 +15,12 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-require 'models/account_credentials'
-require 'communication/communicator'
-require 'menu/menu_main'
-require 'configuration/credentials_configuration'
+require "models/account_credentials"
+require "communication/communicator"
+require "configuration/credentials_configuration"
+require "configuration/shift_configuration"
+require "communication/session_manager"
+require "prompt"
 
 # Setup wizard
 class SetupWizard
@@ -30,79 +32,113 @@ class SetupWizard
     configure_login_credentials
   end
 
-  # Promts to set the JIRA server url.
+  # Promts for the JIRA server url until user enters a valid value.
   def configure_jira_url
     loop do
       begin
-        ConfigurationManager.instance.update_jira_server_url prompt.ask('Please enter the JIRA Server URL:')
+        Configuration::ConfigurationManager
+          .instance.update_jira_server_url prompt.ask("Please enter the JIRA Server URL:")
         break
-      rescue InvalidURLException
-        Utilities.log('Invalid URL', { type: :error })
+      rescue LogworkException::InvalidURL
+        Utilities.log("Invalid URL", { type: :error })
+        # Break in case of rspec
+        Utilities.rspec_running? && break
       end
     end
   end
 
-  # Promts to set the shift start.
+  # Promts for shift start until user enters a valid value.
   def configure_shift_start
     loop do
       begin
-        ShiftConfiguration.new.update_shift_start(
-          prompt.ask('What time is your shift started? (24h format, e.g. 10:00):')
+        Configuration::ShiftConfiguration.new.update_shift_start(
+          prompt.ask("What time is your shift started? (24h format, e.g. 10:00):")
         )
         break
-      rescue InvalidTimeException
-        Utilities.log('Invalid time format', { type: :error })
+      rescue LogworkException::InvalidTime
+        Utilities.log("Invalid time format", { type: :error })
+        # Break in case of rspec
+        Utilities.rspec_running? && break
       end
     end
   end
 
-  # Promts to set the shift end.
+  # Promts for shift end until user enters a valid value.
   def configure_shift_end
     loop do
       begin
-        ShiftConfiguration.new.update_shift_end(
-          prompt.ask('What time is your shift finished? (24h format, e.g. 18:00):')
+        Configuration::ShiftConfiguration.new.update_shift_end(
+          prompt.ask("What time is your shift finished? (24h format, e.g. 18:00):")
         )
         break
-      rescue InvalidTimeException
-        Utilities.log('Invalid time format', { type: :error })
+      rescue LogworkException::InvalidTime
+        Utilities.log("Invalid time format", { type: :error })
+
+        # Break in case of rspec
+        Utilities.rspec_running? && break
       end
     end
   end
 
-  # Promts to login
+  # Prompts for login credentials and executes login API call.
   def configure_login_credentials
-    return if SessionManager.logged_in?
+    # Clear saved cookie
+    Utilities.remove_cookie
 
     account = prompt_for_account
-    Utilities.log('Trying to login...')
-    session = SessionManager.new(account)
-    session.login do
+    Utilities.log("Trying to login...")
+    session = Communication::SessionManager.new(account)
+    session.login(force: true) do
       Utilities.log("Success (#{session.myself[:full_name]}).", { type: :success })
     end
-  rescue InvalidCredentialsException
-    Utilities.log('Invalid username or password.', { type: :error })
+  rescue LogworkException::InvalidCredentials
+    Utilities.log("Invalid username or password.", { type: :error })
+  rescue LogworkException::APIResourceNotFound, LogworkException::NotSuccessStatusCode
+    Utilities.log("Seems that you have entered an invalid JIRA Server URL.", { type: :error })
   end
 
   private
 
-  attr_accessor :tty_prompt
-
+  # Creates prompt object
   def prompt
-    tty_prompt || TTY::Prompt.new
+    Prompt.new
   end
 
   def prompt_for_account
     begin
-      account = CredentialsConfiguration.new.login_credentials
-    rescue ConfigurationValueNotFound
-      account = AccountCredentials.new(username: nil, password: nil, is_stored: false)
+      account = Configuration::CredentialsConfiguration.new.login_credentials
+    rescue LogworkException::ConfigurationValueNotFound
+      account = Model::AccountCredentials.new(username: nil, password: nil, is_stored: false)
     end
 
-    return if SessionManager.logged_in?
-
-    account.username = prompt.ask('Username:')
-    account.password = prompt.mask('Password:')
+    account.username = prompt_for_username
+    account.password = prompt_for_password
     account
+  end
+
+  def prompt_for_username
+    loop do
+      begin
+        return prompt.ask("Username:", { required: true })
+      rescue LogworkException::InputIsRequired
+        Utilities.log("Invalid value", { type: :error })
+
+        # Break in case of rspec
+        Utilities.rspec_running? && break
+      end
+    end
+  end
+
+  def prompt_for_password
+    loop do
+      begin
+        return prompt.mask("Password:", { required: true })
+      rescue LogworkException::InputIsRequired
+        Utilities.log("Invalid value", { type: :error })
+
+        # Break in case of rspec
+        Utilities.rspec_running? && break
+      end
+    end
   end
 end
