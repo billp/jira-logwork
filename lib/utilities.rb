@@ -15,23 +15,23 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-require 'fileutils'
-require 'constants'
-require 'time'
-require 'date'
+require "fileutils"
+require "constants"
+require "time"
+require "date"
 
 # Utilities
 class Utilities
   LOG_SYMBOLS = {
-    info: '￫',
-    success: '🎉',
-    error: '😓',
-    none: ''
+    info: "￫",
+    success: "🎉",
+    error: "😓",
+    none: ""
   }.freeze
 
-  ENCRYPTED_STORE_KEY = 'JIRA-LOGWORK'
-  TEMP_FOLDER_NAME = 'tmp'
-  COOKIE_FILE_NAME = '.cookie'
+  ENCRYPTED_STORE_KEY = "JIRA-LOGWORK"
+  TEMP_FOLDER_NAME = "tmp"
+  COOKIE_FILE_NAME = ".cookie"
 
   # Logs a message to console.
   #
@@ -41,7 +41,7 @@ class Utilities
     type = options[:type] || :info
     newline = options[:newline] || true
 
-    print "#{LOG_SYMBOLS[type] ? " #{LOG_SYMBOLS[type]} " : ''}#{message}" + (newline ? "\n" : '')
+    print "#{LOG_SYMBOLS[type] ? " #{LOG_SYMBOLS[type]} " : ''}#{message}" + (newline ? "\n" : "")
   end
 
   # Stores session cookie in tmp folder.
@@ -117,7 +117,7 @@ class Utilities
   #
   # @return [Boolean] True if String isan Integer, false otherwise.
   def self.valid_date?(str)
-    Date.strptime(str, '%m/%d/%Y')
+    Date.strptime(str, "%m/%d/%Y")
   rescue ArgumentError, TypeError
     false
   end
@@ -127,6 +127,13 @@ class Utilities
   # @return [Int] Duration in hours.
   def self.time_diff_hours(start_time, end_time)
     (Time.parse(end_time) - Time.parse(start_time)).to_i / 3600
+  end
+
+  # Checks if rspecs are running.
+  #
+  # @return [Bool] True if rspecs are running.
+  def self.rspec_running?
+    $PROGRAM_NAME.split("/").last == "rspec"
   end
 
   # Return the singluar or plural version of the string.

@@ -15,10 +15,10 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-require 'utilities'
-require 'exceptions'
-require 'communication/api'
-require 'models/worklog_issue'
+require "utilities"
+require "logwork_exception"
+require "communication/api"
+require "models/logwork_issue"
 
 # Configuration for repeatables.
 class ScheduledIssuesManager
@@ -39,14 +39,16 @@ class ScheduledIssuesManager
   # @param duration [String] A String representation of duration, e.g. 2h30m
   def add_scheduled(issue_id, repeat, date, start_time, duration)
     validate_input(repeat, date, start_time, duration)
-    API.get_issue(issue_id) do |issue|
+    Communication::API.get_issue(issue_id) do |issue|
       update_issue_attributes(issue, repeat, date, start_time, duration).save
       Utilities.log "Added issue #{issue.jira_id}: #{issue.description}.", { type: :info }
     end
-  rescue APIResourceNotFoundException
+  rescue LogworkException::APIResourceNotFound
     Utilities.log("JIRA issue '#{issue_id}' not found.", { type: :error })
-  rescue RepeatedOrScheduledRequired, ScheduledCannotBeCombinedWithRepeated, InvalidRepeatValue,
-         InvalidDateFormat, DuplicateIssueFound, InputValueRequired, InvalidTimeException => e
+  rescue LogworkException::RepeatedOrScheduledRequired, LogworkException::ScheduledCannotBeCombinedWithRepeated,
+         LogworkException::InvalidRepeatValue, LogworkException::InvalidDateFormat,
+         LogworkException::DuplicateIssueFound, LogworkException::InputValueRequired,
+         LogworkException::InvalidTimeException => e
     Utilities.log(e, { type: :error })
   end
 
@@ -98,37 +100,40 @@ class ScheduledIssuesManager
   def validate_occurence_of_date_or_repeat(repeat, date)
     return unless date.nil? && repeat.nil?
 
-    raise RepeatedOrScheduledRequired.new, 'Option --repeat or --date is required.'
+    raise LogworkException::RepeatedOrScheduledRequired.new, "Option --repeat or --date is required."
   end
 
   def validate_exclusive_input(date, repeat)
     return unless !date.nil? && !repeat.nil?
 
-    raise ScheduledCannotBeCombinedWithRepeated.new, 'Option --date cannot be combined with --repeat.'
+    raise LogworkException::ScheduledCannotBeCombinedWithRepeated.new, "Option --date cannot be combined with --repeat."
   end
 
   def validate_repeat(repeat)
     repeat_value = repeat.to_i
     return if Utilities.number?(repeat) && repeat_value >= 0 && repeat_value < 8
 
-    raise InvalidRepeatValue.new, '--repeat value should be between 0 and 8.'
+    raise LogworkException::InvalidRepeatValue.new,
+          "--repeat value should be between 0 and 8."
   end
 
   def validate_date(date)
     return if Utilities.valid_date?(date)
 
-    raise InvalidDateFormat.new, "--date value has invalid format. Please enter a date in 'mm/dd/YYYY' format."
+    raise LogworkException::InvalidDateFormat.new,
+          "--date value has invalid format. Please enter a date in 'mm/dd/YYYY' format."
   end
 
   def validate_start_time(start_time)
     return if Utilities.valid_time?(start_time)
 
-    raise InvalidTimeException.new, "--start_time value has invalid format. Please enter a date in 'HH:mm' format."
+    raise LogworkException::InvalidTimeException.new,
+          "--start_time value has invalid format. Please enter a date in 'HH:mm' format."
   end
 
   def validate_duration_occurance(start_time)
     return if Utilities.valid_time?(start_time)
 
-    raise InputValueRequired.new, '--duration value is required when --start_time is present.'
+    raise LogworkException::InputValueRequired.new, "--duration value is required when --start_time is present."
   end
 end

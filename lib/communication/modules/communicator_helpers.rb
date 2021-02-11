@@ -15,41 +15,45 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Communicator helpers
-module CommunicatorHelpers
-  def check_unauthorized(status, url)
-    return unless status == 401 && auth_call?(url)
+require "logwork_exception"
 
-    raise InvalidCredentialsException.new, 'Login failed! Please check your credentials.'
-  end
+module Communication
+  # Communicator helpers
+  module CommunicatorHelpers
+    def check_unauthorized(status, url)
+      return unless status == 401 && auth_call?(url)
 
-  def check_not_found(status)
-    raise APIResourceNotFoundException.new, 'API resource not found.' if status == 404
-  end
+      raise LogworkException::InvalidCredentials.new, "Login failed! Please check your credentials."
+    end
 
-  def check_not_success(status)
-    raise NotSuccessStatusCodeException.new, 'Not success response.' if status / 200 != 1
-  end
+    def check_not_found(status)
+      raise LogworkException::APIResourceNotFound.new, "API resource not found." if status == 404
+    end
 
-  def handle_success(body)
-    json_body = Utilities.valid_json?(body) ? parse_json(body) : '{}'
-    yield(json_body) if block_given?
-  end
+    def check_not_success(status)
+      raise LogworkException::NotSuccessStatusCode.new, "Not success response." if status / 200 != 1
+    end
 
-  def should_relogin(res)
-    !relogin_performed && !auth_call?(res.env.url.to_s) && res.status == 401
-  end
+    def handle_success(body)
+      json_body = Utilities.valid_json?(body) ? parse_json(body) : parse_json({})
+      yield(json_body) if block_given?
+    end
 
-  def auth_call?(path)
-    path.include?('/rest/auth/')
-  end
+    def should_relogin(res)
+      !relogin_performed && !auth_call?(res.env.url.to_s) && res.status == 401
+    end
 
-  def relogin
-    # read credentials from configuration file configuration
-    Utilities.remove_cookie
-    conn.headers.delete('Cookie')
-    SessionManager.new(CredentialsConfiguration.new.login_credentials).login(true)
-    self.relogin_performed = true
-    last_call.call(last_proc)
+    def auth_call?(path)
+      path.include?("/rest/auth/")
+    end
+
+    def relogin
+      # read credentials from configuration file configuration
+      Utilities.remove_cookie
+      conn.headers.delete("Cookie")
+      Communication::SessionManager.new(CredentialsConfiguration.new.login_credentials).login(force: true)
+      self.relogin_performed = true
+      cached_request_callback.call(cached_success_callback)
+    end
   end
 end

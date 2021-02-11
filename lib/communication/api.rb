@@ -15,18 +15,20 @@
 # FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-require 'communication/communicator'
-require 'exceptions'
+require "communication/communicator"
+require "logwork_exception"
 
-# Defines API calls
-class API
-  # Returns information about the given issue.
-  #
-  # @return [WorklogIssue] User info.
-  def self.get_issue(issue_id)
-    Communicator.instance.get("#{Communicator.base_api_url}/issue/#{issue_id}") do |body, _|
-      issue = WorklogIssue.new(jira_id: body[:key], description: body[:fields][:summary])
-      yield(issue) if block_given?
+module Communication
+  # Defines API calls
+  class API
+    # Fetch an issue from JIRA Server.
+    #
+    # @return [WorklogIssue] User info.
+    def self.get_issue(issue_id)
+      Communicator.instance.get("#{Communicator.base_api_url}/issue/#{issue_id}") do |body, _|
+        issue = WorklogIssue.new(jira_id: body[:key], description: body[:fields][:summary])
+        yield(issue) if block_given?
+      end
     end
   end
 end
