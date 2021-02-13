@@ -117,10 +117,9 @@ module Communication
       end
     end
 
-    def store_cookie(cookie)
+    def update_cookie_header(cookie)
       # Store cookie
       conn.headers["Cookie"] = cookie
-      Utilities.store_cookie(cookie)
     end
 
     # Returns the base JIRA API URL.

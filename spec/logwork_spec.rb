@@ -4,8 +4,6 @@ require "menu/main"
 require "logwork_exception"
 require "faraday"
 
-# rubocop:disable Layout/LineLength, Metrics/BlockLength
-
 describe "Run jira-logwork" do
   before(:each) do
     ARGV.delete("--pattern")
@@ -184,5 +182,3 @@ describe "Run jira-logwork" do
     end
   end
 end
-
-# rubocop:enable Layout/LineLength, Metrics/BlockLength
