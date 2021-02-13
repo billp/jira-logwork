@@ -65,7 +65,8 @@ module Communication
       return unless body.is_a?(Hash)
 
       cookie = "#{body[:session][:name]}=#{body[:session][:value]}"
-      Communicator.instance.store_cookie(cookie)
+      Communicator.instance.update_cookie_header(cookie)
+      Utilities.store_cookie(cookie)
     end
 
     # Log out the currently logged in user.

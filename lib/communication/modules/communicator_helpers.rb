@@ -35,7 +35,7 @@ module Communication
     end
 
     def handle_success(body)
-      json_body = Utilities.valid_json?(body) ? parse_json(body) : parse_json({})
+      json_body = Utilities.valid_json?(body) ? parse_json(body) : parse_json("{}")
       yield(json_body) if block_given?
     end
 
