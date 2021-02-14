@@ -20,11 +20,11 @@ describe Communication do
       allow_any_instance_of(Faraday::Connection).to receive(:delete).and_return(res)
 
       # Prevent tests to write configuration with stubs
-      allow(File).to receive(:write)
-      allow(Configuration::ConfigurationManager.instance).to receive(:jira_server_url)
-      allow(Configuration::ConfigurationManager.instance).to receive(:save_configuration)
-      allow(Configuration::ConfigurationManager.instance).to receive(:read_configuration)
       allow(Configuration::ConfigurationManager.instance).to receive(:create_config_dir_if_needed)
+      allow(Configuration::ConfigurationManager.instance)
+        .to receive(:configuration_data).and_return(
+          { jira_server_url: "https://www.google.com" }
+        )
     end
 
     describe "add_cookie_if_needed" do
