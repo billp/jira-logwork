@@ -7,12 +7,6 @@ require "faraday"
 describe "Run jira-logwork" do
   before(:each) do
     ARGV.delete("--pattern")
-
-    # Prevent tests to write configuration with stubs
-    allow(File).to receive(:write)
-    allow(Configuration::ConfigurationManager.instance).to receive(:save_configuration)
-    allow(Configuration::ConfigurationManager.instance).to receive(:read_configuration)
-    allow(Configuration::ConfigurationManager.instance).to receive(:create_config_dir_if_needed)
   end
 
   context "no command given" do
