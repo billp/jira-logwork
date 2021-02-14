@@ -35,5 +35,8 @@ RSpec.configure do |config|
     allow(File).to receive(:read) { |path| InMemoryFS.instance.read(path) }
     allow(File).to receive(:write) { |path, data| InMemoryFS.instance.write(path, data) }
     allow(File).to receive(:delete) { |path| InMemoryFS.instance.delete(path) }
+
+    allow(FileUtils).to receive(:mkdir_p)
+    allow(Dir).to receive(:mkdir)
   end
 end
