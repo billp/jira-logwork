@@ -57,8 +57,10 @@ describe Configuration do
         Configuration::CredentialsConfiguration
           .new
           .update_login_credentials("user", "pass")
-        expect(Configuration::CredentialsConfiguration.new.decrypted_password).to eq("pass")
-      end
+        credentials = Configuration::CredentialsConfiguration.new.login_credentials
+        expect(credentials.username).to eq("user")
+        expect(credentials.password).to eq("pass")
+        end
 
       it "should set login credentials" do
         Configuration::CredentialsConfiguration
