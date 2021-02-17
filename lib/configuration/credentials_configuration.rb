@@ -35,7 +35,8 @@ module Configuration
     end
 
     def login_credentials_empty?
-      data[:credentials].nil? ||
+      data.nil? ||
+        data[:credentials].nil? ||
         data[:credentials][:username].nil? ||
         data[:credentials][:password].nil?
     end
