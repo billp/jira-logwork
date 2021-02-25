@@ -1,5 +1,6 @@
 require "singleton"
 require "rspec"
+require "fileutils"
 
 class InMemoryFS
   include Singleton

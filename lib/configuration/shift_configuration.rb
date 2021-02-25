@@ -17,6 +17,8 @@
 
 require "configuration/configuration"
 require "logwork_exception"
+require "utilities"
+require "active_record"
 
 module Configuration
   # Configuration for credentials.
@@ -25,7 +27,7 @@ module Configuration
     #
     # @return [String] The shift start time value, e.g. '10:00'
     def shift_start
-      validate_saved_shift_start
+      check_saved_shift_start_value
 
       shift_start = data[:shift][:start]
       unless Utilities.valid_time?(shift_start)
@@ -35,7 +37,7 @@ module Configuration
       data[:shift][:start]
     end
 
-    def validate_saved_shift_start
+    def check_saved_shift_start_value
       return if !data[:shift].nil? && !data[:shift][:start].nil?
 
       raise LogworkException::ConfigurationValueNotFound.new,
@@ -56,7 +58,8 @@ module Configuration
     #
     # @return [String] The shift end time value, e.g. '18:00'
     def shift_end
-      validate_saved_shift_end
+      check_saved_shift_end_value
+
       shift_end = data[:shift][:end]
       unless Utilities.valid_time?(shift_end)
         raise LogworkException::InvalidTime.new, "Invalid end time formats in '#{manager.configuration_path}'."
@@ -65,7 +68,7 @@ module Configuration
       data[:shift][:end]
     end
 
-    def validate_saved_shift_end
+    def check_saved_shift_end_value
       return if !data[:shift].nil? && !data[:shift][:end].nil?
 
       raise LogworkException::ConfigurationValueNotFound.new,
